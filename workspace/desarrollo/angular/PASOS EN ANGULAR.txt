@@ -1,0 +1,27 @@
+https://www.youtube.com/watch?v=wrb0_b4A0Xo&list=PLGRDMO4rOGcNzi3CpBWsCdQSzbjdWWy-f&index=10
+
+PASO 1
+ CREAR MODEL PARA CADA TABLA:
+ - Ejemplo:  ng generate class /model/pais
+
+
+PASO 2
+ CREAR UN COMPONENTE LISTADO, CREAR, ACTUALIZAR:
+ - Ejemplo: ng generate component /component/pais/pais-lista , ng generate component /component/pais/lista , ng generate component /component/pais/create
+ folder: component/pais/pais-lista , component/pais/lista , component/pais/create
+ - Verificar en el archivo app.module.ts si agrego el nuevo componente, buscar dentro del decorador "@NgModule"
+ - Verificar que se haya creado la carpeta con los nuevos componentes, app/component/pais/pais-lista
+
+
+PASO 3
+ PROBAR SI FUNCIONA NUESTRO NUEVO COMPONENTE AGREGANDO EN EL ARCHIVO app.component.html EL NUEVO TAG
+
+
+
+CREAR HTML PARA UN COMPONENTE LISTADO:
+ - EN EL ARCHIVO component/pais/pais-lista/pais-lista.component.html SE PUEDE CREAR UNA TABLA CON LOS DATOS
+ - EN EL ARCHIVO component/pais/pais-lista/pais-lista.component.ts DEFINIR EL LISTADO QUE LLAMA A UN METODO
+ DEL SERVICE
+
+
+jdzH

@@ -1,0 +1,67 @@
+Recapitulación de los pasos a seguir para Iniciar el Backend
+
+1. Genera el nuevo .jar con Maven (mvn clean package).
+
+2. Construye la imagen Docker con docker build -t servicio-ubicaciones ..
+$ docker build -t ubicaciones-service:1.0 .
+
+3. Reinicia el contenedor: elimina el contenedor anterior e inicia uno nuevo con docker run.
+$ docker ps
+$ docker stop e60c
+$ docker rm ubicaciones-service  ubicaciones-service (Elimina la imagen vieja)
+$ docker ps
+$ docker run -d -p 8080:8080 --name ubicaciones-service ubicaciones-service:1.0
+$ docker ps
+
+4. Verifica los logs del contenedor para asegurarte de que no hay errores de conexión a la base de datos o problemas con Hibernate.
+
+5. Conéctate a la base de datos y verifica si las tablas se han creado.
+
+
+swagger:
+http://localhost:8080/swagger-ui/index.html
+---------------------------------------------------------------------------------
+
+
+
+Recapitulación de los pasos a seguir para Iniciar el FrontEnd
+
+$ docker ps
+
+Construir la Imagen Docker
+$ docker build -t frontend-microservicios .
+
+
+Ejecutar el contenedor
+docker run -d -p 3000:80 --name frontend-container frontend-microservicios
+------------------------------------------------------------------------------------------------
+
+
+
+
+
+Versionar en Git
+
+frontend:
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git init
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git add .
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git status
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git commit -m "mi primer commit del frontend"
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git status
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git branch main
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git checkout main
+
+Crear un repositorio en GihHub
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git remote add origin https://github.com/DevelopmentFcuevas/plantilla-admin.git
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git branch -M main
+
+fmcue@LAPTOP-11BJLDMQ MINGW64 ~/reactjs/plantilla-admin (master) $ git push -u origin main

@@ -1,0 +1,18 @@
+Google:dashboard react
+
+https://www.youtube.com/watch?v=gK0v_d91epk
+
+
+Crear una carpeta vacia: react-admin-dashboard
+
+$ npm create vite@latest .
+
+$ npm install tailwindcss @tailwindcss/vite
+
+$ npm i react-router-dom lucide-react recharts
+
+$ npm i framer-motion
+
+$ npm install dayjs
+
+$ npm run dev

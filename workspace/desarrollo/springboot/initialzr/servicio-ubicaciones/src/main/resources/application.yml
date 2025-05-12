@@ -1,0 +1,64 @@
+##spring.application.name=Servicio de Ubicaciones
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/main_db
+#    username: postgres
+#    password: "123"
+#    driver-class-name: org.postgresql.Driver
+
+#  jpa:
+#    properties:
+#      hibernate:
+#        #default_schema: ubicaciones
+#        #format_sql: true
+#    hibernate:
+#      ddl-auto: update  # Puede ser update, create-drop, none, etc.
+#    show-sql: true
+#    #properties:
+#      #hibernate:
+#        #format_sql: true
+
+#spring:
+#  jpa:
+#    database: POSTGRESQL
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: create-drop
+#  datasource:
+#    platform: postgres
+#    url: jdbc:postgresql://localhost:5432/main_db
+#    username: postgres
+#    password: 123
+#    driverClassName: org.postgresql.Driver
+
+#spring:
+#  jpa:
+#    database: POSTGRESQL
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: create-drop
+#  datasource:
+#    platform: postgres
+#    url: #${URL}
+#    username: #${USERNAME}
+#    password: #${PASSWORD}
+#    driverClassName: org.postgresql.Driver
+
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    #url: jdbc:postgresql://host.docker.internal:5432/main_db?ssl=false
+    #url: jdbc:postgresql://localhost:5432/main_db?ssl=false
+    url: jdbc:postgresql://host.docker.internal:5432/main_db
+    username: postgres
+    password: 123
+    #url: ${URL}
+    #username: ${USERNAME}
+    #password: ${PASSWORD}
+    driverClassName: org.postgresql.Driver
+server:
+  port: 9090  # o el puerto que tú quieras
