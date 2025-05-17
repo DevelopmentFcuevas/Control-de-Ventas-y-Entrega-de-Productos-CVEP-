@@ -34,7 +34,7 @@ const PaisesPage = () => {
                 }
 
                 const total = activosRes.data + inactivosRes.data;
-                console.log("total: " + total + " activosRes: " + activosRes.data + " inactivosRes: " + inactivosRes.data + " hoyRes: " + hoyRes.data);
+                //console.log("total: " + total + " activosRes: " + activosRes.data + " inactivosRes: " + inactivosRes.data + " hoyRes: " + hoyRes.data);
 
                 setStats({
                     totalPaises: total,

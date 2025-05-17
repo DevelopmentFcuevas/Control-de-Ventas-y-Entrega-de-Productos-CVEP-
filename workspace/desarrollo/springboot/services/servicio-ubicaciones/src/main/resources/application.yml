@@ -1,0 +1,21 @@
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    #url: jdbc:postgresql://host.docker.internal:5432/main_db?ssl=false
+    #url: jdbc:postgresql://localhost:5432/main_db?ssl=false
+    url: jdbc:postgresql://host.docker.internal:5432/main_db
+    username: postgres
+    password: 123
+    #url: ${URL}
+    #username: ${USERNAME}
+    #password: ${PASSWORD}
+    driverClassName: org.postgresql.Driver
+  application:
+    name: Servicio de Ubicaciones
+
+#server:
+  #port: 9090  # o el puerto que tú quieras
