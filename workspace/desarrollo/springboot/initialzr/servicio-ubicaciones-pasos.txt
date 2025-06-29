@@ -8,6 +8,7 @@ $ docker build -t ubicaciones-service:1.0 .
 3. Reinicia el contenedor: elimina el contenedor anterior e inicia uno nuevo con docker run.
 $ docker ps
 $ docker stop e60c
+$ docker stop ubicaciones-service
 $ docker rm ubicaciones-service  ubicaciones-service (Elimina la imagen vieja)
 $ docker ps
 $ docker run -d -p 8080:8080 --name ubicaciones-service ubicaciones-service:1.0

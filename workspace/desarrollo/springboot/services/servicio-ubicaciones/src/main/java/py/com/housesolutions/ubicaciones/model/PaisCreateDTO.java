@@ -30,6 +30,4 @@ public class PaisCreateDTO {
     private String dominioTld;
     private String husoHorario;
     private Continente continente = Continente.SIN_ESPECIFICAR;
-    //@Size(max = 255, message = "La ruta de la imagen no debe exceder los 255 caracteres.")
-    //private String imagePath;
 }

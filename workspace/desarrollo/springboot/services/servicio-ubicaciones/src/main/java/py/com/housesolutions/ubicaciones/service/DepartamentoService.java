@@ -1,11 +1,9 @@
 package py.com.housesolutions.ubicaciones.service;
 
 import py.com.housesolutions.ubicaciones.domain.Departamento;
-import py.com.housesolutions.ubicaciones.model.DepartamentoCreateDTO;
-import py.com.housesolutions.ubicaciones.model.DepartamentoDTO;
-import py.com.housesolutions.ubicaciones.model.DepartamentoResponseDTO;
-import py.com.housesolutions.ubicaciones.model.DepartamentoUpdateDTO;
+import py.com.housesolutions.ubicaciones.model.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface DepartamentoService {
@@ -18,4 +16,6 @@ public interface DepartamentoService {
     DepartamentoResponseDTO create(DepartamentoCreateDTO dto) throws Exception;
     DepartamentoResponseDTO update(Long id, DepartamentoUpdateDTO dto) throws Exception;
     void delete(final Long id) throws Exception;
+    long countByEstado(Estado estado) throws Exception;
+    long countByFechaCreacion(LocalDate fecha) throws Exception;
 }

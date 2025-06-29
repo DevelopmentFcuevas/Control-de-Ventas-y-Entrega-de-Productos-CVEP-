@@ -16,6 +16,7 @@ import py.com.housesolutions.ubicaciones.service.PaisService;
 import py.com.housesolutions.ubicaciones.util.*;
 import py.com.housesolutions.ubicaciones.util.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +124,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         response.setPoblacion(entity.getPoblacion());
         response.setSuperficie(entity.getSuperficie());
         response.setRegion(entity.getRegion());
+        response.setEstado(entity.getEstado());
         response.setCreatedAt(entity.getCreatedAt());
         response.setUpdatedAt(entity.getUpdatedAt());
         return response;
@@ -438,6 +440,36 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             //capturar, la raridad
             log.error("DepartamentoService-delete-Exception::Error inesperado en el Service", e);
             throw new Exception("Ha ocurrido un error inesperado en la eliminación. Por favor, contacta al administrador del sistema.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByEstado(Estado estado) throws Exception {
+        try {
+            log.info("DepartamentoService-countByEstado::Contando departamentos por estado: {}", estado);
+            return repository.countByEstadoAndNotDeleted(estado);
+        } catch (DataAccessException e) {
+            log.error("DepartamentoService-countByEstado-DataAccessException::Error al acceder a la base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos.");
+        } catch (Exception e) {
+            log.error("DepartamentoService-countByEstado-Exception::Error inesperado", e);
+            throw new InternalServerErrorException("Error inesperado al contar departamentos por estado.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByFechaCreacion(LocalDate fecha) throws Exception {
+        try {
+            log.info("DepartamentoService-countByFechaCreacion::Contando departamentos por fecha: {}", fecha);
+            return repository.countCreatedToday(fecha);
+        } catch (DataAccessException e) {
+            log.error("DepartamentoService-countByFechaCreacion-DataAccessException::Error al acceder a la base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos.");
+        } catch (Exception e) {
+            log.error("DepartamentoService-countByFechaCreacion-Exception::Error inesperado", e);
+            throw new InternalServerErrorException("Error inesperado al contar departamentos por fecha.");
         }
     }
 

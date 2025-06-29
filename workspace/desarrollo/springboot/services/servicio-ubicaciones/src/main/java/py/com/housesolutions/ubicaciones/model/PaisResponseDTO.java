@@ -21,7 +21,6 @@ public class PaisResponseDTO {
     private String dominioTld;
     private String husoHorario;
     private Continente continente;
-    //private String imagePath;
     private Estado estado;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

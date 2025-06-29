@@ -1,18 +1,23 @@
-import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Search, Pencil, Trash2, Eye } from "lucide-react";
-import axios from '../../services/api'; // Cliente Axios centralizado
-import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
-// Navegación interna con React Router
-import { Link } from 'react-router-dom';
-import ConfirmModal from "../common/ConfirmModal";
+// 📦 Librerías externas
+import React, { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";				// Librería para animaciones
+import { Link } from 'react-router-dom';			// Navegación interna con React Router
 import toast from "react-hot-toast";
+// 📁 Íconos u otros recursos externos
+import { Search, Pencil, Trash2, Eye } from "lucide-react"; // Íconos
+import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+// 🔧 Servicios (API, helpers, utilidades)
+import axios from '../../services/api';				// Cliente Axios centralizado
+// 🧩 Componentes comunes
+import ConfirmModal from "../common/ConfirmModal";	// Modal de Confirmación
+import ErrorMessage from "../common/ErrorMessage";	// Mensajes de Error
+//Componentes específicos
 
 
 /**
  * Componente que renderiza una tabla de países con búsqueda, ordenamiento y paginación.
  */
-const PaisesTable = () => {
+const PaisTable = () => {
 	// Estado para el término de búsqueda
 	const [searchTerm, setSearchTerm] = useState("");
 
@@ -31,9 +36,11 @@ const PaisesTable = () => {
 	// Estado para manejar errores
 	const [error, setError] = useState(null);
 
+	// Estado que controla si el modal de confirmación está abierto o cerrado
 	const [modalOpen, setModalOpen] = useState(false);
-	const [selectedPais, setSelectedPais] = useState(null);
 
+	// Estado que guarda el país seleccionado para eliminar (usado al abrir el modal)
+	const [selectedPais, setSelectedPais] = useState(null);
 
 	/**
 	 * useEffect que se ejecuta una sola vez al montar el componente.
@@ -75,31 +82,40 @@ const PaisesTable = () => {
         setFilteredPaises(filtered);
     };
 
-
+	/**
+	 * Formatea el nombre del continente:
+	 * - lo convierte todo a minúsculas
+	 * - reemplaza guiones bajos con espacios
+	 * - y luego capitaliza la primera letra de cada palabra.
+	 */
 	const formatContinente = (value) => {
-		return value
-			.toLowerCase()
-			.replace(/_/g, ' ')
-			.replace(/\b\w/g, c => c.toUpperCase());
+		return value.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 	};
 
+	/**
+	 * Maneja la eliminación de un país.
+	 * - Llama a la API para eliminarlo
+	 * - Muestra mensaje de éxito o error
+	 * - Refresca la tabla si se elimina correctamente
+	 */
 	const handleDelete = async () => {
 		try {
-			//await axios.delete(`/paises/${selectedPais.id}`);
 			await axios.delete(`paises/${selectedPais.id}`);
 			toast.success("País eliminado correctamente");
-			setModalOpen(false);
+			setModalOpen(false); // Cierra el modal
 
-			// Refrescar la lista de países
+			// Refrescar la lista de países(Actualiza los datos tras la eliminación).
 			const response = await axios.get("paises");
 			setRecords(response.data);
 			setFilteredPaises(response.data);
+
+			// Mensaje amigable para el usuario
+			setError(null); // Borra errores anteriores, si existían
 		} catch (error) {
-			toast.error("Error al eliminar el país");
-			console.error(error);
+			console.error("Error al eliminar país:", error?.response?.data || error.message || error);
+			setError("No se pudo eliminar el país. Verifica tu conexión o intenta más tarde.");
 		}
 	};
-
 
 	/**
 	 * Definición de columnas de la tabla.
@@ -109,7 +125,7 @@ const PaisesTable = () => {
 	const columns = useMemo(() => [
 		{
 			accessorKey: 'id',
-			header: 'Id',
+			header: '#Id',
 			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
 		},
 		{
@@ -127,11 +143,6 @@ const PaisesTable = () => {
 			header: 'Código ISO3',
 			cell: (info) => (<div className='text-sm text-gray-300'>{info.getValue()}</div>),
 		},
-		/* {
-			accessorKey: 'continente',
-			header: 'Continente',
-			cell: (info) => (<div className='text-sm text-gray-300'>{info.getValue()}</div>),
-		}, */
 		{
 			accessorKey: 'continente',
 			header: 'Continente',
@@ -153,30 +164,6 @@ const PaisesTable = () => {
 				);
 			},
 		},
-		/* {
-			id: 'acciones',
-			header: 'Acciones',
-			cell: () => (
-				<div className='text-sm text-gray-300'>
-					<button className='text-indigo-400 hover:text-indigo-300 mr-2'>Editar</button>
-					<button className='text-red-400 hover:text-red-300'>Eliminar</button>
-				</div>
-			),
-		}, */
-		/* {
-			id: 'acciones',
-			header: 'Acciones',
-			cell: () => (
-				<div className='flex gap-2 text-gray-300'>
-					<button className='hover:text-indigo-400' title="Editar">
-						<Pencil size={18} />
-					</button>
-					<button className='hover:text-red-400' title="Eliminar">
-						<Trash2 size={18} />
-					</button>
-				</div>
-			),
-		}, */
 		{
 			id: 'acciones',
 			header: 'Acciones',
@@ -199,9 +186,6 @@ const PaisesTable = () => {
 						>
 							<Pencil size={18} />
 						</Link>
-						{/* <button className='hover:text-red-400' title="Eliminar">
-							<Trash2 size={18} />
-						</button> */}
 						<button
     						className='hover:text-red-400'
     						title="Eliminar"
@@ -212,7 +196,6 @@ const PaisesTable = () => {
 						>
 							<Trash2 size={18} />
 						</button>
-
 					</div>
 				);
 			},
@@ -251,7 +234,7 @@ const PaisesTable = () => {
 	/**
 	 * Si hay un error se muéstra al usuario.
 	 */
-	if (error) {
+	/* if (error) {
 		return (
 			<div className="flex justify-center items-center h-64">
 				<div className="text-center">
@@ -262,10 +245,9 @@ const PaisesTable = () => {
 				</div>
 			</div>
 		);
-	}
+	} */
+	{error && <ErrorMessage message={error} />}
 	
-	
-
 	return (
 		<motion.div
 			className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700'
@@ -288,7 +270,6 @@ const PaisesTable = () => {
 				</div>
 			</div>
 
-			
 			{/* Tabla de datos(Países) */}
 			<div className='overflow-x-auto'>
 				<table className='min-w-full divide-y divide-gray-700'>
@@ -373,4 +354,4 @@ const PaisesTable = () => {
 
 };
 
-export default PaisesTable;
+export default PaisTable;

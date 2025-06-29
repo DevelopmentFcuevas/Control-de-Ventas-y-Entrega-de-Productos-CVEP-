@@ -5,15 +5,18 @@ import { Route, Routes } from "react-router-dom";
 import OverViewPage from "./pages/OverViewPage";
 import ProductsPage from "./pages/ProductsPage";
 import Sidebar from "./components/common/Sidebar";
-import PaisesPage from "./pages/PaisesPage";
+import PaisListPage from "./pages/paises/PaisListPage";
 import SalesPage from "./pages/SalesPage";
 import OrdersPage from "./pages/OrdersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
-import PaisForm from "./pages/PaisForm";
-import PaisDetailPage from "./pages/PaisDetailPage";
-import PaisEditPage from "./pages/PaisEditPage";
-// import { Toaster } from 'react-hot-toast';
+import PaisCreatePage from "./pages/paises/PaisCreatePage";
+import PaisDetailPage from "./pages/paises/PaisDetailPage";
+import PaisEditPage from "./pages/paises/PaisEditPage";
+import DepartamentoListPage from "./pages/departamentos/DepartamentoListPage";
+import DepartamentoDetailPage from "./pages/departamentos/DepartamentoDetailPage";
+import DepartamentoCreatePage from "./pages/departamentos/DepartamentoCreatePage";
+import DepartamentoEditPage from "./pages/departamentos/DepartamentoEditPage";
 
 // Componente principal de la aplicación
 function App() {
@@ -21,8 +24,6 @@ function App() {
     // Contenedor principal de la app, usa flex para que Sidebar y el contenido estén en fila
     <div className='flex h-screen bg-gray-900 text-gray-100 overflow-hidden'>
 
-      {/* <Toaster /> */}
-      
       {/* Fondo decorativo con gradiente y efecto blur (difuminado) */}
       <div className="fixed inset-0 z-0">
         {/* Capa de color degradado */}
@@ -43,15 +44,19 @@ function App() {
         {/* Página de productos */}
         <Route path="/products" element={<ProductsPage />} />
 
-        {/* Página de paises */}
-        <Route path="/paises" element={<PaisesPage />} />
-
-        <Route path="/paises/nuevo" element={<PaisForm />} />
-
+        
+        {/* Páginas de pais */}
+        <Route path="/paises" element={<PaisListPage />} />
+        <Route path="/paises/nuevo" element={<PaisCreatePage />} />
         <Route path="/paises/:id" element={<PaisDetailPage />} />
-
         <Route path="/paises/:id/edit" element={<PaisEditPage />} />
 
+        {/* Páginas de departamento */}
+        <Route path="/departamentos" element={<DepartamentoListPage />} />
+        <Route path="/departamentos/:id" element={<DepartamentoDetailPage />} />
+        <Route path="/departamentos/nuevo" element={<DepartamentoCreatePage />} />
+        <Route path="/departamentos/:id/edit" element={<DepartamentoEditPage />} />
+        
         {/* Página de ventas */}
         <Route path="/sales" element={<SalesPage />} />
 

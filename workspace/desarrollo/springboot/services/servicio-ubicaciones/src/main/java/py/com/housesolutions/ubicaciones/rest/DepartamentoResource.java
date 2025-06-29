@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +17,19 @@ import org.springframework.web.bind.annotation.*;
 import py.com.housesolutions.ubicaciones.model.DepartamentoCreateDTO;
 import py.com.housesolutions.ubicaciones.model.DepartamentoResponseDTO;
 import py.com.housesolutions.ubicaciones.model.DepartamentoUpdateDTO;
+import py.com.housesolutions.ubicaciones.model.Estado;
 import py.com.housesolutions.ubicaciones.service.DepartamentoService;
 import py.com.housesolutions.ubicaciones.util.MissingParameterException;
 import py.com.housesolutions.ubicaciones.util.NotFoundException;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/departamentos", produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(
-        origins = "http://localhost:3000", // Origen permitido
+/*@CrossOrigin (
+        origins = "http://localhost:5173", // Origen permitido
         methods = {RequestMethod.GET,
                 RequestMethod.POST,
                 RequestMethod.DELETE,
@@ -34,7 +37,7 @@ import java.util.Map;
                 RequestMethod.PATCH}, // Métodos permitidos
         allowedHeaders = {"Content-Type", "Authorization"}, // Encabezados permitidos
         allowCredentials = "true" // Permitir cookies y credenciales
-)
+)*/
 @Tag(name = "Departamentos", description = "Gestión de departamentos")
 @Slf4j
 public class DepartamentoResource {
@@ -199,5 +202,18 @@ public class DepartamentoResource {
         }
     }
 
+    @GetMapping("/count/estado/{estado}")
+    public ResponseEntity<Long> countByEstado(@PathVariable Estado estado) throws Exception {
+        log.info("DepartamentoResource-countByEstado::Contar departamentos por estado {}", estado);
+        long count = service.countByEstado(estado);
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/count/fecha/{fecha}")
+    public ResponseEntity<Long> countByFechaCreacion(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) throws Exception {
+        log.info("DepartamentoResource-countByFechaCreacion::Contar departamentos por fecha {}", fecha);
+        long count = service.countByFechaCreacion(fecha);
+        return ResponseEntity.ok(count);
+    }
 
 }

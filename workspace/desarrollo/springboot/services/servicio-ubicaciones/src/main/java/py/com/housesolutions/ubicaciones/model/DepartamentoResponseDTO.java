@@ -17,6 +17,7 @@ public class DepartamentoResponseDTO {
     private Integer poblacion;
     private BigDecimal superficie;
     private Region region;
+    private Estado estado;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

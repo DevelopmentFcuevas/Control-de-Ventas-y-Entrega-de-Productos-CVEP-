@@ -255,7 +255,6 @@ public class PaisServiceImpl implements PaisService {
 
     // Crea un nuevo País.
     @Override
-    //public PaisResponseDTO create(PaisCreateDTO request) throws Exception {
     public PaisResponseDTO create(PaisCreateDTO request) throws Exception {
         try {
             //intentar
@@ -314,28 +313,6 @@ public class PaisServiceImpl implements PaisService {
                 dto.setDominioTld(request.getDominioTld());
                 dto.setHusoHorario(request.getHusoHorario());
                 dto.setContinente(request.getContinente());
-                //dto.setImagePath(
-                //        request.getImagePath() != null ? request.getImagePath() : "/images/default-flag.png"
-                //);
-                //String imagePath;
-                //if (imageFile != null && !imageFile.isEmpty()) {
-                //    String uploadDir = "uploads/paises"; // Carpeta relativa a la raíz del proyecto
-                //    String extension = FilenameUtils.getExtension(imageFile.getOriginalFilename());
-                //    String filename = UUID.randomUUID().toString() + "." + extension;
-
-                //    File uploadFolder = new File(uploadDir);
-                //    if (!uploadFolder.exists()) {
-                //        uploadFolder.mkdirs();
-                //    }
-
-                //    Path path = Paths.get(uploadDir, filename);
-                //    Files.copy(imageFile.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-                //    imagePath = "/" + uploadDir + "/" + filename;
-                //} else {
-                //    imagePath = "/uploads/default-flag.png";
-                //}
-                //dto.setImagePath(imagePath);
-
                 dto.setEstado(Estado.ACTIVO);
                 dto.setCreatedBy("system");
                 dto.setCreatedAt(LocalDateTime.now());

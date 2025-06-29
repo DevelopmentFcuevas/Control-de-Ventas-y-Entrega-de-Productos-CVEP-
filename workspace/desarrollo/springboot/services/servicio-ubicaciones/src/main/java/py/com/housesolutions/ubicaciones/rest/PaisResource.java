@@ -31,7 +31,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/paises", produces = MediaType.APPLICATION_JSON_VALUE)
 //@CrossOrigin(origins = "http://localhost:3000")
-@CrossOrigin (
+/*@CrossOrigin (
         origins = "http://localhost:5173", // Origen permitido
         methods = {RequestMethod.GET,
                 RequestMethod.POST,
@@ -40,7 +40,7 @@ import java.util.Map;
                 RequestMethod.PATCH}, // Métodos permitidos
         allowedHeaders = {"Content-Type", "Authorization"}, // Encabezados permitidos
         allowCredentials = "true" // Permitir cookies y credenciales
-)
+)*/
 @Tag(name = "Países", description = "Gestión de países")
 @Slf4j
 public class PaisResource {
@@ -134,24 +134,9 @@ public class PaisResource {
     )
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PaisCreateDTO request) throws Exception {
-    //@PostMapping(/*consumes = MediaType.MULTIPART_FORM_DATA_VALUE,*/
-    //                /*consumes = "multipart/form-data;charset=UTF-8",*/
-    //                consumes = {
-    //                        MediaType.MULTIPART_FORM_DATA_VALUE,
-    //                        "multipart/form-data;charset=UTF-8"
-    //                },
-    //                produces = MediaType.APPLICATION_JSON_VALUE)
-    //public ResponseEntity<?> create(/*@RequestPart("data") @Valid PaisCreateDTO request,*/
-    //                                @RequestPart("data") String dataJson,
-    //                                @RequestPart(value = "image", required = false) MultipartFile imageFile) throws Exception {
         try {
             log.info("PaisResource-create::Creando un nuevo recurso");
-
-            // 1) Convertir JSON a DTO
-            //PaisCreateDTO request = new ObjectMapper().readValue(dataJson, PaisCreateDTO.class);
-
             PaisResponseDTO response = service.create(request);
-            //PaisResponseDTO response = service.create(request, imageFile);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (DataIntegrityViolationException e) {
             log.error("PaisResource-create-DataIntegrityViolationException::Error al enviar datos para crear nuevo recurso", e);

@@ -15,7 +15,6 @@ public interface PaisService {
     PaisResponseDTO get(Long id) throws Exception;
     PaisResponseDTO getByName(String name) throws Exception;
     PaisDTO getAll(Long id) throws Exception;
-    //PaisResponseDTO create(PaisCreateDTO dto) throws Exception;
     PaisResponseDTO create(PaisCreateDTO dto) throws Exception;
     PaisResponseDTO update(Long id, PaisUpdateDTO dto) throws Exception;
     void delete(final Long id) throws Exception;

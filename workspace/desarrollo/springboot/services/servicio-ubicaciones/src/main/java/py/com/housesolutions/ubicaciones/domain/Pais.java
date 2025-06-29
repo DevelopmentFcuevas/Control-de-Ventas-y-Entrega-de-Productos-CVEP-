@@ -67,10 +67,6 @@ public class Pais {
     @Comment("Continente en el que se encuentra el país")
     private Continente continente;
 
-    //@Column(name = "image_path", nullable = true, length = 255)
-    //@Comment("Ruta de la imagen asociada al registro de país")
-    //private String imagePath;
-
     @OneToMany(mappedBy = "pais", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Departamento> departamentos;
 

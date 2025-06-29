@@ -1,6 +1,5 @@
 import axios from "axios";
 
-
 // Configuración base de Axios para todas las peticiones HTTP.
 // Esto centraliza el uso de la API para facilitar mantenimiento y cambios de URL base.
 const api = axios.create({
@@ -17,7 +16,6 @@ export const getPaisesPorEstado = (estado) =>
     api.get(`/paises/count/estado/${estado}`);
 
 
-
 // Obtener cantidad de países creados por fecha
 //export const getPaisesPorFecha = (fecha) =>
 //    api.get(`/paises/count/fecha`, {
@@ -27,12 +25,18 @@ export const getPaisesPorFecha = (fecha) =>
     api.get(`/paises/count/fecha/${fecha}`);
 
 
-
 /* 
 🧠 Sugerencias para crecer con este componente:
 ------------------------------------------------
 
 * En api.js, podés sumar interceptores de Axios para agregar tokens, manejar errores globales, etc.
 */
+
+export const getDepartamentosPorEstado = (estado) =>
+    api.get(`/departamentos/count/estado/${estado}`);
+
+export const getDepartamentosPorFecha = (fecha) =>
+    api.get(`/departamentos/count/fecha/${fecha}`);
+
 
 export default api;
