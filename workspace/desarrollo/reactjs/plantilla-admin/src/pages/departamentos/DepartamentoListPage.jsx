@@ -14,15 +14,10 @@ import StatCard from '../../components/common/StatCard';                        
 import DepartamentoTable from '../../components/departamentos/DepartamentoTable';           // Tabla de datos (ahora de departamentos)
 
 
-
-
-
-
-
-
-
-
-
+/**
+ * Página Crear Departamento que muestra el formulario de departamentos junto con estadísticas rápidas.
+ * Se encarga de guardar datos de departamento hacia la API.
+ */
 const DepartamentoListPage = () => {
     
     const [stats, setStats] = useState({

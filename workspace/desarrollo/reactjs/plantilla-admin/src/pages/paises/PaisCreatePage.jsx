@@ -13,7 +13,7 @@ import Header from '../../components/common/Header';                            
 import PaisSection from '../../components/paises/PaisSection';                      // Sección personalizada para pais.
 import StatCard from '../../components/common/StatCard';                            // Tarjetas de estadísticas
 import Breadcrumb from '../../components/common/Breadcrumb';                        // Migas de pan para la Ruta de navegación
-//Componentes específicos
+// Componentes específicos
 
 
 /**
@@ -23,6 +23,9 @@ import Breadcrumb from '../../components/common/Breadcrumb';                    
 const PaisCreatePage = () => {
 
     const navigate = useNavigate();
+
+    // Estado para mostrar mensajes globales al usuario (éxito o error)
+    const [message, setMessage] = useState({ type: '', text: '' });
 
     // Estado para almacenar estadísticas generales sobre los países.
     // Se actualiza con datos obtenidos desde la API al cargar el componente.
@@ -46,8 +49,6 @@ const PaisCreatePage = () => {
 
                 // Validamos los datos esperados
                 if (typeof activosRes.data !== 'number' || typeof inactivosRes.data !== 'number') {
-                    //throw new Error("La respuesta del servidor no es válida.");
-                    //throw new Error("Los datos de países activos o inactivos no son numéricos.");
                     console.error("[ESTADÍSTICAS] Respuesta no válida del servidor:", { activosRes, inactivosRes });
                     setMessage({ 
                         type: 'error', 
@@ -65,15 +66,11 @@ const PaisCreatePage = () => {
                     inactivePaises: inactivosRes.data,
                 });
             } catch (error) {
-                //console.error("Error al obtener estadísticas:", error);
-                //setError("No se pudieron cargar las estadísticas. Intente más tarde.");
-                //toast.error("No se pudieron cargar las estadísticas. Intenta más tarde.");
-                //setErrors("Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.");
-                
                 console.error("[ESTADÍSTICAS] Error al obtener estadísticas:", error);
                 setMessage({ 
                     type: 'error', 
-                    text: 'No se pudieron cargar las estadísticas. Intenta más tarde.' 
+                    // text: 'No se pudieron cargar las estadísticas. Intenta más tarde.' 
+                    text: 'Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.' 
                 });
             }
         };
@@ -82,9 +79,6 @@ const PaisCreatePage = () => {
     }, []);
     
     
-    // Estado para mostrar mensajes globales al usuario (éxito o error)
-    const [message, setMessage] = useState({ type: '', text: '' });
-
     // 📊 Estado del formulario con los campos del país a crear.
     // Este estado mantiene los valores que el usuario ingresa en el formulario.
     const [form, setForm] = useState({
@@ -245,18 +239,13 @@ const PaisCreatePage = () => {
                 husoHorario: form.husoHorario.trim(),
             };
 
-            //await axios.post('/paises', form);
             await axios.post('/paises', sanitizedForm);
-            //toast.success('País creado con éxito');
             setMessage({ 
                 type: 'success', 
                 text: '¡El país se creó correctamente!' 
             });
             navigate('/paises');
         } catch (error) {
-            //toast.error('Error al crear el país');
-            //console.error('Error al crear el país' + error);
-
             console.error('Error en handleSubmit - No se pudo crear el país:', error);
             setMessage({ 
                 type: 'error', 
@@ -268,7 +257,6 @@ const PaisCreatePage = () => {
     };
 
     
-
     return (
         <div className='flex-1 overflow-auto relative z-10 bg-gray-900'>
 			
@@ -360,12 +348,6 @@ const PaisCreatePage = () => {
                                     onChange={handleChange}
                                     className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 >
-                                    {/* {[
-                                        'ASIA', 'AFRICA', 'AMERICA_DEL_NORTE', 'AMERICA_DEL_SUR',
-                                        'ANTARTIDA', 'EUROPA', 'OCEANIA', 'SIN_ESPECIFICAR',
-                                    ].map((value) => (
-                                        <option key={value} value={value}>{value.replace(/_/g, ' ')}</option>
-                                    ))} */}
                                     {CONTINENTES.map((value) => (
                                         <option key={value} value={value}>{value.replace(/_/g, ' ')}</option>
                                     ))}

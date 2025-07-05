@@ -1,6 +1,6 @@
 // 📦 Librerías externas
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';                   // Navegación interna con React Router
 // 📁 Íconos u otros recursos externos
 import worldGlobe from '../../assets/world-globe.png';          // Imagen de ejemplo
 // 🔧 Servicios (API, helpers, utilidades)
@@ -8,7 +8,7 @@ import axios from '../../services/api';                         // Cliente Axios
 // 🧩 Componentes comunes
 import Header from '../../components/common/Header';            // Título de la sección
 import Breadcrumb from '../../components/common/Breadcrumb';    // Migas de pan para la Ruta de navegación
-//Componentes específicos
+// Componentes específicos
 
 
 /*

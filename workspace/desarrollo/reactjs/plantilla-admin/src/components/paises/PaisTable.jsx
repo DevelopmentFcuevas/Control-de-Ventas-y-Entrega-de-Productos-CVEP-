@@ -1,17 +1,17 @@
 // 📦 Librerías externas
 import React, { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";				// Librería para animaciones
-import { Link } from 'react-router-dom';			// Navegación interna con React Router
+import { motion } from "framer-motion";						// Librería para animaciones
+import { Link } from 'react-router-dom';					// Navegación interna con React Router
 import toast from "react-hot-toast";
 // 📁 Íconos u otros recursos externos
-import { Search, Pencil, Trash2, Eye } from "lucide-react"; // Íconos
+import { Search, Pencil, Trash2, Eye } from "lucide-react";	// Íconos
 import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 // 🔧 Servicios (API, helpers, utilidades)
-import axios from '../../services/api';				// Cliente Axios centralizado
+import axios from '../../services/api';						// Cliente Axios centralizado
 // 🧩 Componentes comunes
-import ConfirmModal from "../common/ConfirmModal";	// Modal de Confirmación
-import ErrorMessage from "../common/ErrorMessage";	// Mensajes de Error
-//Componentes específicos
+import ConfirmModal from "../common/ConfirmModal";			// Modal de Confirmación
+import ErrorMessage from "../common/ErrorMessage";			// Mensajes de Error
+// Componentes específicos
 
 
 /**

@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';                          // Navegación interna con React Router
 import dayjs from 'dayjs';                                                          // Para manejar fechas fácilmente
-//import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';                                             // Librería para animaciones
 // 📁 Íconos u otros recursos externos
 import { Flag, FlagOff, LandPlot, Goal } from "lucide-react";                       // Íconos
-import { motion } from 'framer-motion';                                             // Librería para animaciones
 import worldGlobe from '../../assets/world-globe.png';                              // Imagen de ejemplo
 // 🔧 Servicios (API, helpers, utilidades)
 import axios, { getPaisesPorEstado, getPaisesPorFecha } from '../../services/api';  // Cliente Axios centralizado
@@ -14,19 +13,7 @@ import Header from '../../components/common/Header';                            
 import PaisSection from '../../components/paises/PaisSection';                      // Sección personalizada para pais.
 import StatCard from '../../components/common/StatCard';                            // Tarjetas de estadísticas
 import Breadcrumb from '../../components/common/Breadcrumb';                        // Migas de pan para la Ruta de navegación
-//Componentes específicos
-
-
-/* // 🌍 Lista de continentes válidos (para el select)
-const CONTINENTES = ['ASIA', 
-    'AFRICA', 
-    'AMERICA_DEL_NORTE', 
-    'AMERICA_DEL_SUR',
-    'ANTARTIDA', 
-    'EUROPA', 
-    'OCEANIA', 
-    'SIN_ESPECIFICAR'
-    ]; */
+// Componentes específicos
 
 
 /**
@@ -39,6 +26,9 @@ const PaisEditPage = () => {
 
     // 🔁 Navegación programática tras guardar
     const navigate = useNavigate();
+
+    // Estado para mostrar mensajes globales al usuario (éxito o error)
+    const [message, setMessage] = useState({ type: '', text: '' });
 
     // 📡 Cargar datos actuales del país al montar el componente
     useEffect(() => {
@@ -112,10 +102,6 @@ const PaisEditPage = () => {
     }, []);
 
 
-    // Estado para mostrar mensajes globales al usuario (éxito o error)
-    //const [message, setMessage] = useState(null);
-    const [message, setMessage] = useState({ type: '', text: '' });
-    
     //  📊 Estado del formulario con los campos del país a modificar.
     // Este estado mantiene los valores que el usuario ingresa en el formulario.
     const [form, setForm] = useState({
@@ -166,7 +152,11 @@ const PaisEditPage = () => {
         const newErrors = {};
 
         // Helper para detectar solo espacios o strings vacíos
-        const isBlank = (value) => !value || value.trim() === '';
+        //const isBlank = (value) => !value || value.trim() === '';
+        const isBlank = (value) => {
+            if (typeof value !== 'string') return !value && value !== 0;
+            return value.trim() === '';
+        };
 
         // Nombre del país (obligatorio, solo letras, espacios y guiones)
         if (isBlank(form.name)) {
@@ -276,7 +266,7 @@ const PaisEditPage = () => {
             };
 
             //axios.put(`/paises/${id}`, form)
-        axios.put(`/paises/${id}`, sanitizedForm)
+            axios.put(`/paises/${id}`, sanitizedForm);
             /*.then(() => {
                 //toast.success("País actualizado correctamente");
                 //navigate(`/paises/${id}`); // Redirige al detalle del país
@@ -304,7 +294,7 @@ const PaisEditPage = () => {
             });
             //navigate('/paises');
             // Redirigir tras breve pausa
-            setTimeout(() => navigate(`/paises/${id}`), 1500);
+            setTimeout(() => navigate(`/paises/${id}`), 5000);//1500
 
         } catch (error) {
             console.error('Error en handleSubmit - No se pudo actualizar el país:', error);

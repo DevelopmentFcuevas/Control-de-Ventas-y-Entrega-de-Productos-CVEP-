@@ -11,7 +11,7 @@ import { getPaisesPorEstado, getPaisesPorFecha } from '../../services/api';     
 import Header from '../../components/common/Header';                            // Título de la sección
 import StatCard from '../../components/common/StatCard';                        // Tarjetas de estadísticas
 import Breadcrumb from '../../components/common/Breadcrumb';                    // Migas de pan para la Ruta de navegación
-//Componentes específicos
+// Componentes específicos
 import PaisTable from '../../components/paises/PaisTable';                      // Tabla de datos (ahora de países)
 
 
@@ -20,6 +20,11 @@ import PaisTable from '../../components/paises/PaisTable';                      
  * Se encarga de obtener datos desde la API, renderizar tarjetas de resumen y una tabla interactiva.
  */
 const PaisListPage = () => {
+
+    // Estado para mostrar mensajes de error al usuario final
+    const [error, setError] = useState(null);
+    // Estado para mostrar mensajes globales al usuario (éxito o error)
+    const [message, setMessage] = useState({ type: '', text: '' });
     
     // Estado local para guardar estadísticas calculadas desde la API
     const [stats, setStats] = useState({
@@ -29,8 +34,6 @@ const PaisListPage = () => {
         inactivePaises: 0,
     });
 
-    // Estado para mostrar mensajes de error al usuario final
-    const [error, setError] = useState(null);
 
     // useEffect que se ejecuta al cargar la página para obtener datos de resumen desde la API
     useEffect(() => {
@@ -45,7 +48,11 @@ const PaisListPage = () => {
                 // Validamos los datos esperados
                 if (typeof activosRes.data !== 'number' || typeof inactivosRes.data !== 'number') {
                     console.error("[ESTADÍSTICAS] Respuesta no válida del servidor:", { activosRes, inactivosRes });
-                    throw new Error("Los datos de países activos o inactivos no son numéricos.");
+                    //throw new Error("Los datos de países activos o inactivos no son numéricos.");
+                    setMessage({ 
+                        type: 'error', 
+                        text: 'Los datos de países activos o inactivos no son numéricos.' 
+                    });
                 }
 
                 // Calculamos el total
@@ -59,7 +66,11 @@ const PaisListPage = () => {
                 });
             } catch (error) {
                 console.error("[ESTADÍSTICAS] Error al obtener estadísticas:", error);
-                setError("Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.");
+                //setError("Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.");
+                setMessage({ 
+                    type: 'error', 
+                    text: 'Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.' 
+                });
             }
         };
 
