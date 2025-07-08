@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';                                     // Navegación interna con React Router
 import { motion } from "framer-motion";                                             // Librería para animaciones
 import dayjs from 'dayjs';                                                          // Para manejar fechas fácilmente
-import toast from 'react-hot-toast';
 // 📁 Íconos u otros recursos externos
 import { Flag, FlagOff, LandPlot, Goal } from "lucide-react";                       // Íconos
 import worldGlobe from '../../assets/world-globe.png';                              // Imagen de ejemplo
@@ -15,7 +14,6 @@ import DepartamentoSection from '../../components/departamentos/DepartamentoSect
 import StatCard from '../../components/common/StatCard';                                // Tarjetas de estadísticas
 import Breadcrumb from '../../components/common/Breadcrumb';                            // Migas de pan para la Ruta de navegación
 // Componentes específicos
-
 
 /**
  * Página Crear Departamento que muestra el formulario de departamentos junto con estadísticas rápidas.
@@ -36,14 +34,18 @@ const DepartamentoCreatePage = () => {
                 const response = await axios.get('http://localhost:8080/api/paises')
                 setPaises(response.data);
             } catch (error) {
-                console.error('Error al obtener países:', error);
-                toast.error('No se pudieron cargar los países');
+                console.error("[LISTA DE PAISES] Error al obtener el listado de países:", error);
+                setMessage({ 
+                    type: 'error', 
+                    text: '¡No se pudo cargar la lista de países, verifique con el administrador!' 
+                });
             }
         };
 
         fetchPaises();
     }, []);
 
+    /* 
     // Estado para almacenar estadísticas generales sobre los países.
     // Se actualiza con datos obtenidos desde la API al cargar el componente.
     // Se usa para mostrar las tarjetas estadísticas en la parte superior de la vista.
@@ -92,7 +94,8 @@ const DepartamentoCreatePage = () => {
         };
 
         fetchStats();
-    }, []);
+    }, []); 
+    */
     
     
     // 📊 Estado del formulario con los campos del departamento a crear.
@@ -104,20 +107,14 @@ const DepartamentoCreatePage = () => {
         poblacion: '',
         superficie: '',
         region: 'SIN_ESPECIFICAR',
-        // pais: '',
         pais: { id: '' },
     });
 
     // 🌍 Lista de regiones válidos (para el select)
-    const REGIONES = ['ORIENTAL',
-        'OCCIDENTAL', 
-        'SIN_ESPECIFICAR'
-    ];
+    const REGIONES = ['ORIENTAL', 'OCCIDENTAL', 'SIN_ESPECIFICAR'];
     
     // 📌 Maneja los cambios en los campos del formulario
     const handleChange = (e) => {
-        //setForm({ ...form, [e.target.name]: e.target.value });
-        
         const { name, value } = e.target;
         if (name === 'pais.id') {
             setForm({ ...form, pais: { id: value } });
@@ -136,32 +133,6 @@ const DepartamentoCreatePage = () => {
     
     // ✅ Función para validar los campos del formulario antes de enviarlos al servidor.
     // Retorna `true` si todos los campos son válidos, `false` en caso contrario.
-    /* const validateForm = () => {
-        const newErrors = {};
-    
-        if (!form.name.trim()) {
-            newErrors.name = 'El nombre del departamento es obligatorio';
-        }
-
-        if (form.codigoIso && form.codigoIso.length > 2) {
-            newErrors.codigoIso = 'Máximo 2 caracteres';
-        }
-
-        if (form.poblacion && form.poblacion < 0) {
-            newErrors.poblacion = 'La población no puede ser negativa';
-        }
-
-        if (form.superficie && form.superficie < 0) {
-            newErrors.superficie = 'La superficie no puede ser negativa';
-        }
-
-        if (!form.pais) {
-            newErrors.pais = 'Debe seleccionar un país';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    }; */
     const validateForm = () => {
         const newErrors = {};
 
@@ -208,7 +179,7 @@ const DepartamentoCreatePage = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-     
+    
     // 🚀 Maneja el envío del formulario
     const handleSubmit = async (e) => {
         
@@ -234,16 +205,12 @@ const DepartamentoCreatePage = () => {
             };
 
             await axios.post('/departamentos', sanitizedForm);
-            //toast.success('Departamento creado con éxito');
-            //navigate('/departamentos');
             setMessage({ 
                 type: 'success', 
                 text: '¡El Departamento se creó correctamente!' 
             });
-            navigate('/departamentos');
+            setTimeout(() => navigate(`/departamentos`), 3000);
         } catch (error) {
-            //toast.error('Error al crear el departamento');
-            //console.error('Error al crear el departamento' + error);
             console.error('Error en handleSubmit - No se pudo crear el departamento:', error);
             setMessage({ 
                 type: 'error', 
@@ -254,7 +221,6 @@ const DepartamentoCreatePage = () => {
         }
     };
 
-    
     return (
         <div className='flex-1 overflow-auto relative z-10 bg-gray-900'>
 			
@@ -271,7 +237,7 @@ const DepartamentoCreatePage = () => {
 			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
 				
                 {/* Tarjetas con estadísticas rápidas */}
-                <motion.div
+                {/* <motion.div
                     className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8'
                     initial={{ opacity: 0, y: 200 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -281,7 +247,7 @@ const DepartamentoCreatePage = () => {
                     <StatCard name="Nuevos Departamentos Agregados(hoy)" icon={LandPlot} value={stats.newDepartamentosToday} color='#10B981' />
                     <StatCard name="Departamentos Activos" icon={Goal} value={stats.activeDepartamentos.toLocaleString()} color='#F59E0B' />
                     <StatCard name="Departamentos Inactivos" icon={FlagOff} value={stats.inactiveDepartamentos} color='#EF4444' />
-                </motion.div>
+                </motion.div> */}
                 
                 <DepartamentoSection icon={Flag} title={"Crear Nuevo Departamento"}>
 
@@ -341,12 +307,6 @@ const DepartamentoCreatePage = () => {
                                     onChange={handleChange}
                                     className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 >
-                                    {/* {[
-                                        'ORIENTAL', 'OCCIDENTAL',
-                                        'SIN_ESPECIFICAR',
-                                    ].map((value) => (
-                                        <option key={value} value={value}>{value.replace(/_/g, ' ')}</option>
-                                    ))} */}
                                     {REGIONES.map((value) => (
                                         <option key={value} value={value}>{value.replace(/_/g, ' ')}</option>
                                     ))}
@@ -357,8 +317,6 @@ const DepartamentoCreatePage = () => {
                             <div>
                                 <label className="text-sm text-gray-300">País</label>
                                 <select
-                                    // name="pais"
-                                    // value={form.pais}
                                     name="pais.id"
                                     value={form.pais.id}
                                     onChange={handleChange}
@@ -372,9 +330,6 @@ const DepartamentoCreatePage = () => {
                                         </option>
                                     ))}
                                 </select>
-                                {/* {errors.pais && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.pais}</p>
-                                )} */}
                             </div>
 
                            {/* ✅ Botón de envío */}
@@ -392,11 +347,7 @@ const DepartamentoCreatePage = () => {
 
                         {/* Imagen estática a la derecha */}
                         <div className="hidden lg:flex items-center justify-center">
-                            <img
-                                src={worldGlobe}
-                                alt="Ilustración mundo"
-                                className="w-3/4 max-w-sm opacity-80"
-                            />
+                            <img src={worldGlobe} alt="Ilustración mundo" className="w-3/4 max-w-sm opacity-80" />
                         </div>
 
                     </div>

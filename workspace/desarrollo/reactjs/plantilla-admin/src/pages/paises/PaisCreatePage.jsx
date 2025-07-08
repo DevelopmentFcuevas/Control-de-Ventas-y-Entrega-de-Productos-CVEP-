@@ -27,6 +27,7 @@ const PaisCreatePage = () => {
     // Estado para mostrar mensajes globales al usuario (éxito o error)
     const [message, setMessage] = useState({ type: '', text: '' });
 
+    /* 
     // Estado para almacenar estadísticas generales sobre los países.
     // Se actualiza con datos obtenidos desde la API al cargar el componente.
     // Se usa para mostrar las tarjetas estadísticas en la parte superior de la vista.
@@ -76,7 +77,8 @@ const PaisCreatePage = () => {
         };
 
         fetchStats();
-    }, []);
+    }, []); 
+    */
     
     
     // 📊 Estado del formulario con los campos del país a crear.
@@ -273,7 +275,7 @@ const PaisCreatePage = () => {
 			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
 				
                 {/* Tarjetas con estadísticas rápidas */}
-                <motion.div
+                {/* <motion.div
                     className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8'
                     initial={{ opacity: 0, y: 200 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -283,7 +285,7 @@ const PaisCreatePage = () => {
                     <StatCard name="Nuevos Países Agregados(hoy)" icon={LandPlot} value={stats.newPaisesToday} color='#10B981' />
                     <StatCard name="Países Activos" icon={Goal} value={stats.activePaises.toLocaleString()} color='#F59E0B' />
                     <StatCard name="Países Inactivos" icon={FlagOff} value={stats.inactivePaises} color='#EF4444' />
-                </motion.div>
+                </motion.div> */}
                 
                 <PaisSection icon={Flag} title={"Crear Nuevo País"}>
 
