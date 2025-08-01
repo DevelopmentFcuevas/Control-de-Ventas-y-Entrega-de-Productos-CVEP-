@@ -216,4 +216,21 @@ public class DepartamentoResource {
         return ResponseEntity.ok(count);
     }
 
+    @GetMapping("/pais/{paisId}")
+    public ResponseEntity<?> getAllByPaisId(@PathVariable Long paisId) throws Exception {
+        try {
+            log.info("DepartamentoResource-getAllByPaisId::obteniendo el listado de Departamentos");
+            return ResponseEntity.ok(service.findAllByPaisId(paisId));
+        } catch (MissingParameterException e) {
+            log.error("DepartamentoResource-getAllByPaisId-MissingParameterException::No se envío el parámetro paisId.", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (DataAccessException e) {
+            log.error("DepartamentoResource-getAllByPaisId-DataAccessException::Error de acceso a la BD", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("DepartamentoResource-getAllByPaisId::Error al obtener la lista de Departamentos", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }

@@ -1,30 +1,18 @@
 // 📦 Librerías externas
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';          // Navegación interna con React Router
-import { motion } from 'framer-motion';                             // Librería para animaciones
 import toast from 'react-hot-toast';
+import { Combobox } from '@headlessui/react';
 // 📁 Íconos u otros recursos externos
-import { Flag } from "lucide-react";                       // Íconos
+import { List, Pencil } from "lucide-react";                        // Íconos
 import worldGlobe from '../../assets/world-globe.png';              // Imagen de ejemplo
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';                             // Cliente Axios centralizado
 // 🧩 Componentes comunes
 import Header from '../../components/common/Header';                // Título de la sección
 import Breadcrumb from '../../components/common/Breadcrumb';        // Migas de pan para la Ruta de navegación
-import DepartamentoSection from '../../components/departamentos/DepartamentoSection';
-
-
-
-
-
-
-
-
-
-
-
-
-
+import Section from '../../components/common/Section';
 
 /**
  * 📝 Página de edición de un departamento.
@@ -52,21 +40,26 @@ const DepartamentoEditPage = () => {
 
     const [paises, setPaises] = useState([]);
 
-    /*useEffect(() => {
-        axios.get(`/departamentos/${id}`)
-            .then(res => {
-                const sanitized = Object.fromEntries(
-                    Object.entries(res.data).map(([key, value]) => [key, value ?? ''])
-            );
-            setFormData(sanitized);
-        })
-        .catch(err => {
-            toast.error("Error al cargar datos del departamento");
-            console.error("Error al cargar departamento:", err);
-        });
-    }, [id]);*/
+    const [selectedPais, setSelectedPais] = useState(null); //selectedPais es el país elegido en el Combobox.
+
+    const [query, setQuery] = useState(''); //query es el texto que el usuario escribe en el input de búsqueda.
+
+    const filteredPaises = query === '' ? paises : paises.filter((pais) => 
+        pais.name.toLowerCase().includes(query.toLowerCase())
+    );
+
+    const handlePaisSelect = (pais) => {
+        setSelectedPais(pais);
+        setFormData(prev => ({
+            ...prev,
+            /* pais: { id: pais.id } */
+            pais: { id: pais ? pais.id : '' }
+        }));
+    };
+
     // 📡 Cargar datos actuales del departamento al montar el componente
     useEffect(() => {
+
         // Traer departamento
         axios.get(`/departamentos/${id}`)
             .then(res => {
@@ -79,6 +72,9 @@ const DepartamentoEditPage = () => {
                     superficie: data.superficie ?? '',
                 };
                 setFormData(departamento);
+
+                //
+                setSelectedPais(departamento.pais ?? null);
             })
             .catch(err => {
                 toast.error("Error al cargar datos del departamento");
@@ -89,6 +85,12 @@ const DepartamentoEditPage = () => {
         axios.get('/paises')
             .then(res => {
                 setPaises(res.data);
+
+                // Intentar re-sincronizar selectedPais con el listado completo
+                if (form.pais?.id) {
+                    const encontrado = res.data.find(p => p.id === form.pais.id);
+                    if (encontrado) setSelectedPais(encontrado);
+                }
             })
             .catch(err => {
                 toast.error("Error al cargar países");
@@ -96,15 +98,11 @@ const DepartamentoEditPage = () => {
             });
     }, [id]);
 
-
     // 🌍 Lista de regiones válidos (para el select)
     const REGIONES = ['ORIENTAL', 'OCCIDENTAL', 'SIN_ESPECIFICAR'];
 
     // 📌 Maneja los cambios en los campos del formulario
     const handleChange = e => {
-        //const { name, value } = e.target;
-        //setFormData(prev => ({ ...prev, [name]: value }));
-
         const { name, value } = e.target;
 
         if (name === 'pais.id') {
@@ -117,7 +115,6 @@ const DepartamentoEditPage = () => {
         }
     };
 
-
     // ❗ Estado para guardar los errores del formulario, clave: nombre del campo.
     // Guarda mensajes de error específicos para cada campo del formulario.
     const [errors, setErrors] = useState({});
@@ -125,25 +122,17 @@ const DepartamentoEditPage = () => {
     // Estado para indicar si se está realizando una operación (como guardar)
     // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
     const [loading, setLoading] = useState(false);
-    
-    
-    /*const validateForm = () => {
-        const newErrors = {};
-        if (!formData.name.trim()) newErrors.name = 'El nombre del departamento es obligatorio';
-        if (formData.codigoIso && formData.codigoIso.length > 2) newErrors.codigoIso = 'Máximo 2 caracteres';
-        if (formData.poblacion && formData.poblacion < 0) newErrors.poblacion = 'La población no puede ser negativa';
-        if (formData.superficie && formData.superficie < 0) newErrors.superficie = 'La Superficie no puede ser negativa';
-        if (!formData.pais.id) newErrors.pais = 'Debe seleccionar un país';
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };*/
+
     // ✅ Función para validar los campos del formulario antes de enviarlos al servidor.
     // Retorna `true` si todos los campos son válidos, `false` en caso contrario.
     const validateForm = () => {
         const newErrors = {};
 
         // Helper para detectar solo espacios o strings vacíos
-        const isBlank = (value) => !value || value.trim() === '';
+        const isBlank = (value) => {
+            if (typeof value !== 'string') return !value && value !== 0;
+            return value.trim() === '';
+        };
 
         // Nombre del departamento (obligatorio, solo letras, espacios y guiones)
         if (isBlank(form.name)) {
@@ -190,7 +179,6 @@ const DepartamentoEditPage = () => {
 
         e.preventDefault();
         
-        //if (!validateForm()) return;
         setMessage({ type: '', text: '' }); // Limpiar mensaje anterior
         if (!validateForm()) {
             setMessage({ 
@@ -217,18 +205,7 @@ const DepartamentoEditPage = () => {
                 text: '¡El departamento se actualizo correctamente!' 
             });
 
-            setTimeout(() => navigate(`/departamentos/${id}`), 3000);
-
-            /*axios.put(`/departamentos/${id}`, form)
-            .then(() => {
-                toast.success("Departamento actualizado correctamente");
-                navigate(`/departamentos/${id}`);
-            })
-            .catch(err => {
-                toast.error("Error al actualizar departamento");
-                console.error("Error al actualizar departamento:", err);
-            });*/
-
+            setTimeout(() => navigate(`/departamentos/${id}`), 1500);
         } catch (error) {
             console.error('Error en handleSubmit - No se pudo actualizar el departamento:', error);
             setMessage({ 
@@ -238,46 +215,34 @@ const DepartamentoEditPage = () => {
         } finally {
             setLoading(false);
         }
-
-
-
-
     };
 
     return (
-        <motion.div className="flex-1 overflow-auto relative z-10 bg-gray-900"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        >
+        <div className='flex-1 overflow-auto relative z-10 bg-gray-900'>
             {/* 🧭 Header superior de la página(Cabecera con título) */}
             <Header title={`Editar Departamento: ${form.name}`} />
 
             {/* 🧷 Breadcrumb(Migas de pan para la Ruta de navegación) */}
             <Breadcrumb items={[
-                { label: 'Departamentos', href: '/departamentos' },
-                { label: `Editar ${form.name}` }
+                { label: <><List className="inline w-4 h-4 mr-1"/> Listado</>, href: '/departamentos' },
+                { label: <><Pencil className="inline w-4 h-4 mr-1"/> Editar Departamento: {form.name}</> }
             ]} />
 
             {/* 🧾 Formulario */}
-            <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
-
-                <DepartamentoSection icon={Flag} title={"Editar Departamento"}>
+            <main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
+                <Section title="Datos del Departamento">
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
+                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
                         {/* ✏️ Formulario de edición */}
-                        <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-2xl shadow text-white space-y-4">
-                            
-                            <h2 className="text-2xl font-bold mb-4">Editar Información</h2>
-                            
+                        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-2xl shadow-md">
                             {/* 🛎️ Mensajes de estado */}
                             {message.text && (
-                                <div className={`p-3 rounded text-sm font-medium ${
-                                    message.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+                                <div className={`mt-4 p-4 rounded-md text-white font-medium ${
+                                    message.type === 'success' ? 'bg-green-600' : 'bg-red-600'
                                 }`}>
                                     {message.text}
                                 </div>
                             )}
-
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {/* 🧱 Campos individuales generados dinámicamente */}
                                 {[
@@ -288,13 +253,13 @@ const DepartamentoEditPage = () => {
                                     { name: 'superficie', label: 'Superficie (km²)', type: 'number', placeholder: 'Ej: 2780400' },
                                 ].map(({ name, label, type = 'text', placeholder }) => (
                                     <div key={name}>
-                                        <label className="block text-sm font-semibold">{label}</label>
+                                        <label className="text-lg font-semibold text-gray-100">{label}</label>
                                         <input
                                             type={type}
                                             name={name}
                                             value={form[name]}
                                             onChange={handleChange}
-                                            className="mt-1 p-2 w-full rounded bg-gray-700 text-white"
+                                            className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             placeholder={placeholder}
                                         />
                                         {errors[name] && (
@@ -302,64 +267,126 @@ const DepartamentoEditPage = () => {
                                         )}
                                     </div>
                                 ))}
-                            </div>
 
+                                {/* 🌍 Selector de region */}
+                                <div>
+                                    <label className="text-lg font-semibold text-gray-100">Region</label>
+                                    <select
+                                        name="region"
+                                        value={form.region}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full rounded bg-gray-700 text-white p-2"
+                                    >
+                                        {REGIONES.map(cont => (
+                                            <option key={cont} value={cont}>{cont.replace(/_/g, ' ')}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                
+                                {/* 🌍 Selector de país */}
+                                {/* <div>
+                                    {errors.pais && <p className="text-red-400 text-sm mt-1">{errors.pais}</p>}
+                                    <label className="text-lg font-semibold text-gray-100">País</label>
+                                    <select
+                                        name="pais.id"
+                                        value={form.pais.id}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full rounded bg-gray-700 text-white p-2"
+                                    >
+                                        <option value="">Seleccione un país</option>
+                                        {paises.map(pais => (
+                                            <option key={pais.id} value={pais.id}>
+                                                {pais.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div> */}
+                                <div>
+                                    <label className="text-lg font-semibold text-gray-100">País</label>
+                                    <Combobox value={selectedPais || { id: '', name: '' }} onChange={handlePaisSelect}>
+                                        <div className="relative mt-1">
+                                            <div className="relative w-full cursor-default overflow-hidden rounded-md bg-gray-700 text-white border border-gray-600 focus-within:ring-2 focus-within:ring-indigo-500">
+                                                <Combobox.Input 
+                                                    className="w-full border-none py-2 pl-3 pr-10 bg-gray-700 text-white focus:ring-0"
+                                                    displayValue={(pais) => pais ? pais.name : ''}
+                                                    onChange={(event) => setQuery(event.target.value)}
+                                                    placeholder="Buscar país..."
+                                                    required
+                                                />
+                                                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                    <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                </Combobox.Button>
+                                            </div>
+                                            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 text-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                {filteredPaises.length === 0 && query !== '' ? (
+                                                    <div className="relative cursor-default select-none py-2 px-4 text-gray-400">
+                                                        No se encontró ningún país.
+                                                    </div>
+                                                ) : (
+                                                    filteredPaises.map((pais) => (
+                                                        <Combobox.Option
+                                                            key={pais.id}
+                                                            className={({ active }) =>
+                                                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                                                active ? 'bg-indigo-600 text-white' : 'text-gray-300'
+                                                                }`
+                                                            }
+                                                            value={pais}
+                                                        >
+                                                            {({ selected, active }) => (
+                                                                <>
+                                                                    <span
+                                                                        className={`block truncate ${
+                                                                        selected ? 'font-medium' : 'font-normal'
+                                                                        }`}
+                                                                    >
+                                                                        {pais.name}
+                                                                    </span>
+                                                                    {selected ? (
+                                                                        <span
+                                                                            className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                                                                                active ? 'text-white' : 'text-indigo-400'
+                                                                            }`}
+                                                                        >
+                                                                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                                        </span>
+                                                                    ) : null}
+                                                                </>
+                                                            )}
+                                                        </Combobox.Option>
+                                                    ))
+                                                )}
+                                            </Combobox.Options>
+                                        </div>
+                                    </Combobox>
+                                    {errors['pais.id'] && (
+                                        <p className="text-red-400 text-sm mt-1">{errors['pais.id']}</p>
+                                    )}
+                                </div>
 
-                            {/* 🌍 Selector de region */}
-                            <div>
-                                <label className="block text-sm font-semibold">Region</label>
-                                <select
-                                    name="region"
-                                    value={form.region}
-                                    onChange={handleChange}
-                                    className="mt-1 w-full rounded bg-gray-700 text-white p-2"
-                                >
-                                    {REGIONES.map(cont => (
-                                        <option key={cont} value={cont}>{cont.replace(/_/g, ' ')}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                {errors.pais && <p className="text-red-400 text-sm mt-1">{errors.pais}</p>}
-                                <label className="block text-sm font-semibold">País</label>
-                                <select
-                                    name="pais.id"
-                                    value={form.pais.id}
-                                    onChange={handleChange}
-                                    className="mt-1 w-full rounded bg-gray-700 text-white p-2"
-                                >
-                                    <option value="">Seleccione un país</option>
-                                    {paises.map(pais => (
-                                        <option key={pais.id} value={pais.id}>
-                                            {pais.name}
-                                        </option>
-                                    ))}
-                                </select>
                             </div>
 
                             {/* ✅ Botón de envío */}
-                            <button
-                                type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
-                                disabled={loading}
-                            >
-                                {/* Guardar */}
-                                {loading ? 'Guardando...' : 'Guardar'}
-                            </button>
+                            <div className="flex justify-end">
+                                <button
+                                    type="submit"
+                                    className='bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition' 
+                                    disabled={loading}
+                                >
+                                    {/* Guardar */}
+                                    {loading ? 'Guardando...' : 'Guardar'}
+                                </button>
+                            </div>
                         </form>
                         
                         {/* 🖼️ Vista previa de la bandera o imagen genérica estática a la derecha */}
                         <div className="hidden lg:flex items-center justify-center">
                             <img src={worldGlobe} alt="Ilustración mundo" className="w-3/4 max-w-sm opacity-80" />
                         </div>
-
                     </div>
-                </DepartamentoSection>
-                
-                
+                </Section>
             </main>
-        </motion.div>
+        </div>
     );
 }
 

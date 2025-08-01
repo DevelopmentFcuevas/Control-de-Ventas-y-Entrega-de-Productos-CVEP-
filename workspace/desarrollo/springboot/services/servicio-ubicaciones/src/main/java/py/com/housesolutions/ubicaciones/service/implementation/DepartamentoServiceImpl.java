@@ -8,12 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import py.com.housesolutions.ubicaciones.domain.Auditoria;
 import py.com.housesolutions.ubicaciones.domain.Departamento;
 import py.com.housesolutions.ubicaciones.model.*;
-import py.com.housesolutions.ubicaciones.model.*;
 import py.com.housesolutions.ubicaciones.repos.AuditoriaRepository;
 import py.com.housesolutions.ubicaciones.repos.DepartamentoRepository;
 import py.com.housesolutions.ubicaciones.service.DepartamentoService;
 import py.com.housesolutions.ubicaciones.service.PaisService;
-import py.com.housesolutions.ubicaciones.util.*;
 import py.com.housesolutions.ubicaciones.util.*;
 
 import java.time.LocalDate;
@@ -180,7 +178,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
             log.error("DepartamentoService-findAll-DataAccessException::Error en el Service no se puede acceder a la Base de datos", e);
             throw new DatabaseException("Error al acceder a la base de datos. Por favor, intenta nuevamente más tarde.");
         } catch (Exception e) {
-            log.error("DepartamentoService-findAll::Error en el Service al obtener el listado de Países", e);
+            log.error("DepartamentoService-findAll::Error en el Service al obtener el listado de Departamentos", e);
             throw new Exception("Error al obtener el Listado de Departamentos. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
         }
     }
@@ -470,6 +468,36 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         } catch (Exception e) {
             log.error("DepartamentoService-countByFechaCreacion-Exception::Error inesperado", e);
             throw new InternalServerErrorException("Error inesperado al contar departamentos por fecha.");
+        }
+    }
+
+    // Busca todos los departamentos activos, filtrados por código de pais.
+    public List<DepartamentoResponseDTO> findAllByPaisId(Long paisId) throws Exception {
+        try {
+            log.info("DepartamentoService-findAllByPaisId::Iniciando Servicio para obtener listado de departamentos filtrado por ID de pais");
+
+            if (paisId == null) {
+                throw new MissingParameterException("El parámetro 'paisId' es requerido.");
+            }
+
+            List<Departamento> list = repository.findByPaisId(paisId);
+            List<DepartamentoResponseDTO> dtoList = new ArrayList<>();
+            for (Departamento entity : list) {
+            	DepartamentoResponseDTO dto = mapToResponseDTO(entity);
+            	dtoList.add(dto);
+            }
+            log.info("DepartamentoService-findAllByPaisId::Acción completada sin errores.");
+            return dtoList;
+
+        } catch (MissingParameterException e) {
+            log.error("DepartamentoService-findAllByPaisId-MissingParameterException::Error en el Service, no se recibió el parámetro PaisId");
+            throw e; // Dejamos que la excepción MissingParameterException se propague
+        } catch (DataAccessException e) {
+            log.error("DepartamentoService-findAllByPaisId-DataAccessException::Error en el Service no se puede acceder a la Base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos. Por favor, intenta nuevamente más tarde.");
+        } catch (Exception e) {
+            log.error("DepartamentoService-findAllByPaisId::Error en el Service al obtener el listado de Departamentos", e);
+            throw new Exception("Error al obtener el Listado de Departamentos. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
         }
     }
 

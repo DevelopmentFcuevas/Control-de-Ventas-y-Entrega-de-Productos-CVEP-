@@ -12,6 +12,7 @@ public class CiudadResponseDTO {
     DepartamentoResponseDTO departamento;
     private String name;
     private String codigoPostal;
+    private Estado estado;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

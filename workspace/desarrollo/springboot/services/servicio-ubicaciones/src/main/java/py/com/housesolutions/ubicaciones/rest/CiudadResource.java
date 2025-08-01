@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import py.com.housesolutions.ubicaciones.model.CiudadCreateDTO;
 import py.com.housesolutions.ubicaciones.model.CiudadResponseDTO;
 import py.com.housesolutions.ubicaciones.model.CiudadUpdateDTO;
+import py.com.housesolutions.ubicaciones.model.Estado;
 import py.com.housesolutions.ubicaciones.service.CiudadService;
 import py.com.housesolutions.ubicaciones.util.MissingParameterException;
 import py.com.housesolutions.ubicaciones.util.NotFoundException;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -199,4 +202,36 @@ public class CiudadResource {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: "+e.getMessage());
         }
     }
+
+    @GetMapping("/count/estado/{estado}")
+    public ResponseEntity<Long> countByEstado(@PathVariable Estado estado) throws Exception {
+        log.info("CiudadResource-countByEstado::Contar ciudades por estado {}", estado);
+        long count = service.countByEstado(estado);
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/count/fecha/{fecha}")
+    public ResponseEntity<Long> countByFechaCreacion(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) throws Exception {
+        log.info("CiudadResource-countByFechaCreacion::Contar ciudades por fecha {}", fecha);
+        long count = service.countByFechaCreacion(fecha);
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/departamento/{departamentoId}")
+    public ResponseEntity<?> getAllByDepartamentoId(@PathVariable Long departamentoId) throws Exception {
+        try {
+            log.info("CiudadResource-getAllByDepartamentoId::obteniendo el listado de Ciudades");
+            return ResponseEntity.ok(service.findAllByDepartamentoId(departamentoId));
+        } catch (MissingParameterException e) {
+            log.error("CiudadResource-getAllByDepartamentoId-MissingParameterException::No se envío el parámetro paisId.", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (DataAccessException e) {
+            log.error("CiudadResource-getAllByDepartamentoId-DataAccessException::Error de acceso a la BD", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("CiudadResource-getAllByDepartamentoId::Error al obtener la lista de Departamentos", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }

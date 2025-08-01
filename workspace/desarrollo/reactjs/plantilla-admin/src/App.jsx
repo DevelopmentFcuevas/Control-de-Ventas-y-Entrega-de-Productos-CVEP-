@@ -17,6 +17,10 @@ import DepartamentoListPage from "./pages/departamentos/DepartamentoListPage";
 import DepartamentoDetailPage from "./pages/departamentos/DepartamentoDetailPage";
 import DepartamentoCreatePage from "./pages/departamentos/DepartamentoCreatePage";
 import DepartamentoEditPage from "./pages/departamentos/DepartamentoEditPage";
+import CiudadListPage from "./pages/ciudades/CiudadListPage";
+import CiudadCreatePage from "./pages/ciudades/CiudadCreatePage";
+import CiudadDetailPage from "./pages/ciudades/CiudadDetailPage";
+import CiudadEditPage from "./pages/ciudades/CiudadEditPage";
 
 // Componente principal de la aplicación
 function App() {
@@ -26,11 +30,13 @@ function App() {
 
       {/* Fondo decorativo con gradiente y efecto blur (difuminado) */}
       <div className="fixed inset-0 z-0">
+        
         {/* Capa de color degradado */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-80"></div>
         
         {/* Capa con efecto de desenfoque */}
         <div className="absolute inset-0 backdrop-blur-sm"></div>
+
       </div>
       
       {/* Componente de navegación lateral (sidebar) que contiene enlaces a las distintas secciones */}
@@ -56,6 +62,12 @@ function App() {
         <Route path="/departamentos/:id" element={<DepartamentoDetailPage />} />
         <Route path="/departamentos/nuevo" element={<DepartamentoCreatePage />} />
         <Route path="/departamentos/:id/edit" element={<DepartamentoEditPage />} />
+
+        {/* Páginas de ciudad */}
+        <Route path="/ciudades" element={<CiudadListPage />} />
+        <Route path="/ciudades/nuevo" element={<CiudadCreatePage />} />
+        <Route path="/ciudades/:id" element={<CiudadDetailPage />} />
+        <Route path="/ciudades/:id/edit" element={<CiudadEditPage />} />
         
         {/* Página de ventas */}
         <Route path="/sales" element={<SalesPage />} />

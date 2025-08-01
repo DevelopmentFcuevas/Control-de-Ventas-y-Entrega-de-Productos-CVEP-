@@ -16,6 +16,7 @@ import py.com.housesolutions.ubicaciones.service.DepartamentoService;
 import py.com.housesolutions.ubicaciones.util.*;
 import py.com.housesolutions.ubicaciones.util.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,7 @@ public class CiudadServiceImpl implements CiudadService {
         }
         response.setName(entity.getName());
         response.setCodigoPostal(entity.getCodigoPostal());
+        response.setEstado(entity.getEstado());
         response.setCreatedAt(entity.getCreatedAt());
         response.setUpdatedAt(entity.getUpdatedAt());
         return response;
@@ -404,5 +406,67 @@ public class CiudadServiceImpl implements CiudadService {
             log.error("CiudadService-delete-Exception::Error inesperado en el Service", e);
             throw new Exception("Ha ocurrido un error inesperado en la eliminación. Por favor, contacta al administrador del sistema.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByEstado(Estado estado) throws Exception {
+        try {
+            log.info("CiudadService-countByEstado::Contando ciudades por estado: {}", estado);
+            return repository.countByEstadoAndNotDeleted(estado);
+        } catch (DataAccessException e) {
+            log.error("CiudadService-countByEstado-DataAccessException::Error al acceder a la base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos.");
+        } catch (Exception e) {
+            log.error("CiudadService-countByEstado-Exception::Error inesperado", e);
+            throw new InternalServerErrorException("Error inesperado al contar ciudades por estado.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByFechaCreacion(LocalDate fecha) throws Exception {
+        try {
+            log.info("CiudadService-countByFechaCreacion::Contando ciudades por fecha: {}", fecha);
+            return repository.countCreatedToday(fecha);
+        } catch (DataAccessException e) {
+            log.error("CiudadService-countByFechaCreacion-DataAccessException::Error al acceder a la base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos.");
+        } catch (Exception e) {
+            log.error("CiudadService-countByFechaCreacion-Exception::Error inesperado", e);
+            throw new InternalServerErrorException("Error inesperado al contar ciudades por fecha.");
+        }
+    }
+
+    // Busca todas las ciudades activas, filtradas por código de departamento.
+    @Override
+    public List<CiudadResponseDTO> findAllByDepartamentoId(Long departamentoId) throws Exception {
+        try {
+            log.info("CiudadService-findAllByDepartamentoId::Iniciando Servicio para obtener listado de ciudades filtrado por ID de departamento");
+
+            if (departamentoId == null) {
+                throw new MissingParameterException("El parámetro 'departamentoId' es requerido.");
+            }
+
+            List<Ciudad> list = repository.findByDepartamentoId(departamentoId);
+            List<CiudadResponseDTO> dtoList = new ArrayList<>();
+            for (Ciudad entity : list) {
+                CiudadResponseDTO dto = mapToResponseDTO(entity);
+                dtoList.add(dto);
+            }
+            log.info("CiudadService-findAllByDepartamentoId::Acción completada sin errores.");
+            return dtoList;
+
+        } catch (MissingParameterException e) {
+            log.error("CiudadService-findAllByDepartamentoId-MissingParameterException::Error en el Service, no se recibió el parámetro departamentoId");
+            throw e; // Dejamos que la excepción MissingParameterException se propague
+        } catch (DataAccessException e) {
+            log.error("CiudadService-findAllByDepartamentoId-DataAccessException::Error en el Service no se puede acceder a la Base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos. Por favor, intenta nuevamente más tarde.");
+        } catch (Exception e) {
+            log.error("CiudadService-findAllByDepartamentoId::Error en el Service al obtener el listado de Ciudades", e);
+            throw new Exception("Error al obtener el Listado de Ciudades. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
+        }
+
     }
 }

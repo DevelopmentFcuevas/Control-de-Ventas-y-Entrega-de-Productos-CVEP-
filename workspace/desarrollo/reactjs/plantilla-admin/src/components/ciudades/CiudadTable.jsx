@@ -15,9 +15,9 @@ import ErrorMessage from "../common/ErrorMessage";			// Mensajes de Error
 
 
 /**
- * Componente que renderiza una tabla de países con búsqueda, ordenamiento y paginación.
+ * Componente que renderiza una tabla de ciudades con búsqueda, ordenamiento y paginación.
  */
-const PaisTable = () => {
+const CiudadTable = () => {
 	// Estado para el término de búsqueda
 	const [searchTerm, setSearchTerm] = useState("");
 
@@ -25,7 +25,7 @@ const PaisTable = () => {
     const [records, setRecords] = useState([]);
 
 	// Estado que contiene los registros filtrados (por búsqueda), inicializado con un array vacío.
-    const [filteredPaises, setFilteredPaises] = useState([]);
+    const [filteredCiudades, setFilteredCiudades] = useState([]);
 
 	// Estado para manejar la animación del loader mientras se obtienen los datos
 	const [loading, setLoading] = useState(true);
@@ -39,25 +39,25 @@ const PaisTable = () => {
 	// Estado que controla si el modal de confirmación está abierto o cerrado
 	const [modalOpen, setModalOpen] = useState(false);
 
-	// Estado que guarda el país seleccionado para eliminar (usado al abrir el modal)
-	const [selectedPais, setSelectedPais] = useState(null);
+	// Estado que guarda la ciudad seleccionada para eliminar (usado al abrir el modal)
+	const [selectedCiudad, setSelectedCiudad] = useState(null);
 
 	/**
 	 * useEffect que se ejecuta una sola vez al montar el componente.
-	 * Realiza la llamada a la API para obtener la lista de países.
+	 * Realiza la llamada a la API para obtener la lista de ciudades.
 	 */
 	useEffect(() => {
 		setLoading(true); // Mostrar el loader antes de iniciar la carga
 		setError(null); // Limpiar errores anteriores
 
-        axios.get('http://localhost:8080/api/paises')
+        axios.get('http://localhost:8080/api/ciudades')
             .then(response => {
                 setRecords(response.data); // Guarda todos los países en estado original
-                setFilteredPaises(response.data); // Inicializa la tabla con todos los países
+                setFilteredCiudades(response.data); // Inicializa la tabla con todos los países
             })
             .catch(error => {
                 console.error('Error al obtener los datos:', error);
-				setError("No se pudo cargar la lista de países. Inténtalo más tarde."); // Guarda el error, actualiza el estado de errores.
+				setError("No se pudo cargar la lista de ciudades. Inténtalo más tarde."); // Guarda el error, actualiza el estado de errores.
             })
 			.finally(() => {
 				setLoading(false); // Ocultar el loader una vez que se termina la carga
@@ -75,45 +75,37 @@ const PaisTable = () => {
 
 		// Filtro por nombre (puedes agregar más campos si quieres)
         const filtered = records.filter(
-            (pais) => pais.name.toLowerCase().includes(term) 
-				|| pais.continente.toLowerCase().includes(term)
-				|| pais.estado.toLowerCase().includes(term)
+            (ciudad) => ciudad.name.toLowerCase().includes(term) 
+				/* || ciudad.continente.toLowerCase().includes(term) */
+				|| ciudad.estado.toLowerCase().includes(term)
         );
-        setFilteredPaises(filtered);
+        setFilteredCiudades(filtered);
     };
 
-	/**
-	 * Formatea el nombre del continente:
-	 * - lo convierte todo a minúsculas
-	 * - reemplaza guiones bajos con espacios
-	 * - y luego capitaliza la primera letra de cada palabra.
-	 */
-	const formatContinente = (value) => {
-		return value.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-	};
+	
 
 	/**
-	 * Maneja la eliminación de un país.
+	 * Maneja la eliminación de una ciudad.
 	 * - Llama a la API para eliminarlo
 	 * - Muestra mensaje de éxito o error
 	 * - Refresca la tabla si se elimina correctamente
 	 */
 	const handleDelete = async () => {
 		try {
-			await axios.delete(`paises/${selectedPais.id}`);
-			toast.success("País eliminado correctamente");
+			await axios.delete(`ciudades/${selectedCiudad.id}`);
+			toast.success("Ciudad eliminada correctamente");
 			setModalOpen(false); // Cierra el modal
 
 			// Refrescar la lista de países(Actualiza los datos tras la eliminación).
-			const response = await axios.get("paises");
+			const response = await axios.get("ciudades");
 			setRecords(response.data);
-			setFilteredPaises(response.data);
+			setFilteredCiudades(response.data);
 
 			// Mensaje amigable para el usuario
 			setError(null); // Borra errores anteriores, si existían
 		} catch (error) {
-			console.error("Error al eliminar país:", error?.response?.data || error.message || error);
-			setError("No se pudo eliminar el país. Verifica tu conexión o intenta más tarde.");
+			console.error("Error al eliminar ciudad:", error?.response?.data || error.message || error);
+			setError("No se pudo eliminar la ciudad. Verifica tu conexión o intenta más tarde.");
 		}
 	};
 
@@ -130,25 +122,29 @@ const PaisTable = () => {
 		},
 		{
 			accessorKey: 'name',
-			header: 'País',
+			header: 'Ciudad',
 			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
 		},
 		{
-			accessorKey: 'codigoIso2',
-			header: 'Código ISO2',
+			accessorKey: 'codigoPostal',
+			header: 'Código Postal',
 			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
 		},
 		{
-			accessorKey: 'codigoIso3',
-			header: 'Código ISO3',
-			cell: (info) => (<div className='text-sm text-gray-300'>{info.getValue()}</div>),
-		},
-		{
-			accessorKey: 'continente',
-			header: 'Continente',
+			accessorKey: 'departamento.name',
+			header: 'Departamento',
 			cell: (info) => (
 				<div className='text-sm text-gray-300'>
-					{formatContinente(info.getValue())}
+					{info.row.original.departamento?.name || 'No especificado'}
+				</div>
+			),
+		},
+		{
+			accessorKey: 'departamento.pais.name',
+			header: 'País',
+			cell: (info) => (
+				<div className='text-sm text-gray-300'>
+					{info.row.original.departamento.pais?.name || 'No especificado'}
 				</div>
 			),
 		},
@@ -168,19 +164,19 @@ const PaisTable = () => {
 			id: 'acciones',
 			header: 'Acciones',
 			cell: ({ row }) => {
-				const pais = row.original;
+				const ciudad = row.original;
 		
 				return (
 					<div className='flex gap-2 text-gray-300'>
 						<Link
-							to={`/paises/${pais.id}`}
+							to={`/ciudades/${ciudad.id}`}
 							className='hover:text-blue-400 flex items-center'
 							title="Ver detalles"
 						>
 							<Eye size={18} />
 						</Link>
 						<Link
-							to={`/paises/${pais.id}/edit`}
+							to={`/ciudades/${ciudad.id}/edit`}
 							className="hover:text-blue-400 flex items-center"
 							title="Editar"
 						>
@@ -190,7 +186,7 @@ const PaisTable = () => {
     						className='hover:text-red-400'
     						title="Eliminar"
 							onClick={() => {
-								setSelectedPais(pais);
+								setSelectedCiudad(ciudad);
 								setModalOpen(true);
 							}}
 						>
@@ -207,7 +203,7 @@ const PaisTable = () => {
 	 * Permite manejar ordenamiento, paginación y renderizado.
 	 */
 	const table = useReactTable({
-		data: filteredPaises,
+		data: filteredCiudades,
 		columns,
 		state: {
 			sorting,
@@ -257,11 +253,11 @@ const PaisTable = () => {
 		>
 			{/* Titulo de la pagina y buscador */}
 			<div className='flex justify-between items-center mb-6'>
-				<h2 className='text-xl font-semibold text-gray-100'>Listado de Países</h2>
+				<h2 className='text-xl font-semibold text-gray-100'>Listado de Ciudades</h2>
 				<div className='relative'>
 					<input
 						type='text'
-						placeholder='Buscar país...'
+						placeholder='Buscar ciudad...'
 						className='bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
 						value={searchTerm}
 						onChange={handleSearch}
@@ -270,7 +266,7 @@ const PaisTable = () => {
 				</div>
 			</div>
 
-			{/* Tabla de datos(Países) */}
+			{/* Tabla de datos(Ciudades) */}
 			<div className='overflow-x-auto'>
 				<table className='min-w-full divide-y divide-gray-700'>
 					<thead>
@@ -346,10 +342,10 @@ const PaisTable = () => {
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 				onConfirm={handleDelete}
-				message={`¿Estás seguro que deseas eliminar el país "${selectedPais?.name}"? Esta acción no se puede deshacer.`}
+				message={`¿Estás seguro que deseas eliminar la ciudad "${selectedCiudad?.name}"? Esta acción no se puede deshacer.`}
 			/>
 		</motion.div>
 	);
 };
 
-export default PaisTable;
+export default CiudadTable;

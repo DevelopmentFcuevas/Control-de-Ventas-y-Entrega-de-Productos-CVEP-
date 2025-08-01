@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';                                         
 import dayjs from 'dayjs';                                                      // Para manejar fechas fácilmente
 import { Link } from 'react-router-dom';
 // 📁 Íconos u otros recursos externos
+import { Home, List } from "lucide-react";                                     // Íconos
 import { Flag, FlagOff, LandPlot, Goal} from 'lucide-react';                   // Íconos para estadísticas
 // 🔧 Servicios (API, helpers, utilidades)
 import { getPaisesPorEstado, getPaisesPorFecha } from '../../services/api';     // Cliente Axios centralizado
@@ -22,7 +23,9 @@ import PaisTable from '../../components/paises/PaisTable';                      
 const PaisListPage = () => {
 
     // Estado para mostrar mensajes de error al usuario final
-    const [error, setError] = useState(null);
+    //const [error, setError] = useState(null);
+    const [error, setError] = useState({ type: '', text: '' });
+
     // Estado para mostrar mensajes globales al usuario (éxito o error)
     const [message, setMessage] = useState({ type: '', text: '' });
     
@@ -33,8 +36,6 @@ const PaisListPage = () => {
         activePaises: 0,
         inactivePaises: 0,
     });
-
-
     // useEffect que se ejecuta al cargar la página para obtener datos de resumen desde la API
     useEffect(() => {
         const fetchStats = async () => {
@@ -50,6 +51,10 @@ const PaisListPage = () => {
                     console.error("[ESTADÍSTICAS] Respuesta no válida del servidor:", { activosRes, inactivosRes });
                     //throw new Error("Los datos de países activos o inactivos no son numéricos.");
                     setMessage({ 
+                        type: 'error', 
+                        text: 'Los datos de países activos o inactivos no son numéricos.' 
+                    });
+                    setError({ 
                         type: 'error', 
                         text: 'Los datos de países activos o inactivos no son numéricos.' 
                     });
@@ -71,6 +76,10 @@ const PaisListPage = () => {
                     type: 'error', 
                     text: 'Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.' 
                 });
+                setError({ 
+                    type: 'error', 
+                    text: 'Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.' 
+                });
             }
         };
 
@@ -81,18 +90,27 @@ const PaisListPage = () => {
         <div className='flex-1 overflow-auto relative z-10'>
             
             {/* 🧭 Header superior de la página(Cabecera con título) */}
-            <Header title='Países' />
+            <Header title='Listado de Países' />
 
             {/* 🧷 Breadcrumb(Migas de pan para la Ruta de navegación) */}
             <Breadcrumb items={[
-                { label: 'Overview', href: '/' },
-                { label: 'Listado de paises' }
+                /* { label: 'Overview', href: '/' },
+                { label: 'Listado de paises' } */
+                { label: <><Home className="inline w-4 h-4 mr-1"/> Inicio</>, href: '/' },
+                { label: <><List className="inline w-4 h-4 mr-1"/> Listado</> }
             ]} />
 
             {/* Mostrar mensaje de error si algo falló */}
-            {error && (
+           {/* {error && (
                 <div className="bg-red-100 text-red-800 px-4 py-3 rounded mb-4">
                     {error}
+                </div>
+            )} */}
+
+            {/* 🛎️ Mensajes de estado */}
+            {error.text && (
+                <div className="bg-red-100 text-red-800 px-4 py-3 rounded mb-4">
+                    {error.text}
                 </div>
             )}
 

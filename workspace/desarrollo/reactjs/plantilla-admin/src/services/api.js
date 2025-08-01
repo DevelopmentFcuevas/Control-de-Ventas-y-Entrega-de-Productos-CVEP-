@@ -39,4 +39,10 @@ export const getDepartamentosPorFecha = (fecha) =>
     api.get(`/departamentos/count/fecha/${fecha}`);
 
 
+export const getCiudadesPorEstado = (estado) =>
+    api.get(`/ciudades/count/estado/${estado}`);
+
+export const getCiudadesPorFecha = (fecha) =>
+    api.get(`/ciudades/count/fecha/${fecha}`);
+
 export default api;

@@ -1,22 +1,21 @@
 // 📦 Librerías externas
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';                                     // Navegación interna con React Router
-import { motion } from "framer-motion";                                             // Librería para animaciones
-import dayjs from 'dayjs';                                                          // Para manejar fechas fácilmente
+import { useNavigate } from 'react-router-dom';                                         // Navegación interna con React Router
+import { Combobox } from '@headlessui/react';
 // 📁 Íconos u otros recursos externos
-import { Flag, FlagOff, LandPlot, Goal } from "lucide-react";                       // Íconos
-import worldGlobe from '../../assets/world-globe.png';                              // Imagen de ejemplo
+import { List, Plus } from "lucide-react";                                              // Íconos
+import worldGlobe from '../../assets/world-globe.png';                                  // Imagen de ejemplo
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 // 🔧 Servicios (API, helpers, utilidades)
-import axios, { getDepartamentosPorEstado, getDepartamentosPorFecha } from '../../services/api';    // Cliente Axios centralizado
+import axios from '../../services/api';                                                 // Cliente Axios centralizado
 // 🧩 Componentes comunes
 import Header from '../../components/common/Header';                                    // Título de la sección
-import DepartamentoSection from '../../components/departamentos/DepartamentoSection';   // Sección personalizada para departamento.
-import StatCard from '../../components/common/StatCard';                                // Tarjetas de estadísticas
 import Breadcrumb from '../../components/common/Breadcrumb';                            // Migas de pan para la Ruta de navegación
+import Section from '../../components/common/Section';
 // Componentes específicos
 
 /**
- * Página Crear Departamento que muestra el formulario de departamentos junto con estadísticas rápidas.
+ * Página Crear Departamento que muestra el formulario de departamentos.
  * Se encarga de guardar datos de departamento hacia la API.
  */
 const DepartamentoCreatePage = () => {
@@ -44,59 +43,6 @@ const DepartamentoCreatePage = () => {
 
         fetchPaises();
     }, []);
-
-    /* 
-    // Estado para almacenar estadísticas generales sobre los países.
-    // Se actualiza con datos obtenidos desde la API al cargar el componente.
-    // Se usa para mostrar las tarjetas estadísticas en la parte superior de la vista.
-    const [stats, setStats] = useState({
-        totalDepartamentos: 0,
-        newDepartamentosToday: 0,
-        activeDepartamentos: 0,
-        inactiveDepartamentos: 0,
-    });
-
-    // useEffect que se ejecuta al cargar la página para obtener datos de resumen desde la API
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const [activosRes, inactivosRes, hoyRes] = await Promise.all([
-                    getDepartamentosPorEstado("ACTIVO"),
-                    getDepartamentosPorEstado("INACTIVO"),
-                    getDepartamentosPorFecha(dayjs().format('YYYY-MM-DD')),
-                ]);
-
-                // Validamos los datos esperados
-                if (typeof activosRes.data !== 'number' || typeof inactivosRes.data !== 'number') {
-                    console.error("[ESTADÍSTICAS] Respuesta no válida del servidor:", { activosRes, inactivosRes });
-                    setMessage({ 
-                        type: 'error', 
-                        text: 'Los datos de departamentos activos o inactivos no son numéricos.' 
-                    });
-                }
-
-                // Calculamos el total
-                const total = activosRes.data + inactivosRes.data;
-
-                setStats({
-                    totalDepartamentos: total,
-                    newDepartamentosToday: hoyRes.data,
-                    activeDepartamentos: activosRes.data,
-                    inactiveDepartamentos: inactivosRes.data,
-                });
-            } catch (error) {
-                console.error("[ESTADÍSTICAS] Error al obtener estadísticas:", error);
-                setMessage({ 
-                    type: 'error',  
-                    text: 'Hubo un problema al cargar las estadísticas de Departamentos. Por favor, intenta nuevamente más tarde.' 
-                });
-            }
-        };
-
-        fetchStats();
-    }, []); 
-    */
-    
     
     // 📊 Estado del formulario con los campos del departamento a crear.
     // Este estado mantiene los valores que el usuario ingresa en el formulario.
@@ -112,6 +58,29 @@ const DepartamentoCreatePage = () => {
 
     // 🌍 Lista de regiones válidos (para el select)
     const REGIONES = ['ORIENTAL', 'OCCIDENTAL', 'SIN_ESPECIFICAR'];
+
+    // Estado para el texto de búsqueda y el elemento seleccionado.
+    const [selectedPais, setSelectedPais] = useState(null);
+
+    const [query, setQuery] = useState('');
+    
+    // Cuando se carga la lista de países y el formulario tenga uno, se inicialíza.
+    useEffect(() => {
+        if (form.pais.id && paises.length > 0) {
+            const found = paises.find(p => String(p.id) === String(form.pais.id));
+            setSelectedPais(found || null);
+        }
+    }, [form.pais.id, paises]);
+    const filteredPaises =
+    query === ''
+        ? paises
+        : paises.filter((pais) =>
+                pais.name.toLowerCase().includes(query.toLowerCase())
+            );
+    const handlePaisSelect = (pais) => {
+        setSelectedPais(pais);
+        setForm({ ...form, pais: { id: pais.id } });
+    };
     
     // 📌 Maneja los cambios en los campos del formulario
     const handleChange = (e) => {
@@ -130,7 +99,7 @@ const DepartamentoCreatePage = () => {
     // Estado para indicar si se está realizando una operación (como guardar)
     // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
     const [loading, setLoading] = useState(false);
-    
+
     // ✅ Función para validar los campos del formulario antes de enviarlos al servidor.
     // Retorna `true` si todos los campos son válidos, `false` en caso contrario.
     const validateForm = () => {
@@ -209,7 +178,7 @@ const DepartamentoCreatePage = () => {
                 type: 'success', 
                 text: '¡El Departamento se creó correctamente!' 
             });
-            setTimeout(() => navigate(`/departamentos`), 3000);
+            setTimeout(() => navigate(`/departamentos`), 1500);
         } catch (error) {
             console.error('Error en handleSubmit - No se pudo crear el departamento:', error);
             setMessage({ 
@@ -223,41 +192,21 @@ const DepartamentoCreatePage = () => {
 
     return (
         <div className='flex-1 overflow-auto relative z-10 bg-gray-900'>
-			
             {/* 🧭 Header superior de la página(Cabecera con título) */}
-            <Header title='Crear Nuevo Departamento' />
+            <Header title='Crear Departamento' />
 
             {/* 🧷 Breadcrumb(Migas de pan para la Ruta de navegación) */}
             <Breadcrumb items={[
-                { label: 'Departamentos', href: '/departamentos' },
-                { label: 'Crear nuevo departamento' }
+                { label: <><List className="inline w-4 h-4 mr-1"/> Listado</>, href: '/departamentos' },
+                { label: <><Plus className="inline w-4 h-4 mr-1"/> Crear</> }
             ]} />
 
             {/* 🧾 Formulario */}
 			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
-				
-                {/* Tarjetas con estadísticas rápidas */}
-                {/* <motion.div
-                    className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8'
-                    initial={{ opacity: 0, y: 200 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1 }}
-                >
-                    <StatCard name="Total de Departamentos" icon={Flag} value={stats.totalDepartamentos.toLocaleString()} color='#6366F1' />
-                    <StatCard name="Nuevos Departamentos Agregados(hoy)" icon={LandPlot} value={stats.newDepartamentosToday} color='#10B981' />
-                    <StatCard name="Departamentos Activos" icon={Goal} value={stats.activeDepartamentos.toLocaleString()} color='#F59E0B' />
-                    <StatCard name="Departamentos Inactivos" icon={FlagOff} value={stats.inactiveDepartamentos} color='#EF4444' />
-                </motion.div> */}
-                
-                <DepartamentoSection icon={Flag} title={"Crear Nuevo Departamento"}>
-
+                <Section title="Datos del Departamento">
                     <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                        
                         {/* Formulario a la izquierda */}
                         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-2xl shadow-md"> 
-                            
-                            <h2 className="text-2xl font-bold mb-4">Guardar Información</h2>
-
                             {/* 🛎️ Mensajes de estado */}
                             {message.text && (
                                 <div className={`mt-4 p-4 rounded-md text-white font-medium ${
@@ -268,7 +217,6 @@ const DepartamentoCreatePage = () => {
                             )}
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
                                 {/* 🧱 Campos individuales generados dinámicamente */}
                                 {[
                                     { name: 'name', label: 'Nombre del departamento', placeholder: 'Ej: Alto Paraná', maxLength: 50, pattern:"^[A-Za-zÁÉÍÓÚáéíóúÑñ\\s-]+$" },
@@ -296,40 +244,104 @@ const DepartamentoCreatePage = () => {
                                         )}
                                     </div>
                                 ))}
-                            </div>
 
-                            {/* 🌍 Selector de Region */}
-                            <div>
-                                <label className="text-sm text-gray-300">Region</label>
-                                <select
-                                    name="region"
-                                    value={form.region}
-                                    onChange={handleChange}
-                                    className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                >
-                                    {REGIONES.map((value) => (
-                                        <option key={value} value={value}>{value.replace(/_/g, ' ')}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            {/* 🌍 Selector de Pais */}
-                            <div>
-                                <label className="text-sm text-gray-300">País</label>
-                                <select
-                                    name="pais.id"
-                                    value={form.pais.id}
-                                    onChange={handleChange}
-                                    className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    required
-                                >
-                                    <option value="">Seleccione un país</option>
-                                    {paises.map((pais) => (
-                                        <option key={pais.id} value={pais.id}>
-                                            {pais.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                {/* 🌍 Selector de Region */}
+                                <div>
+                                    <label className="text-sm text-gray-300">Region</label>
+                                    <select
+                                        name="region"
+                                        value={form.region}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    >
+                                        {REGIONES.map((value) => (
+                                            <option key={value} value={value}>{value.replace(/_/g, ' ')}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* 🌍 Selector de Pais */}
+                                {/* <div>
+                                    <label className="text-sm text-gray-300">País</label>
+                                    <select
+                                        name="pais.id"
+                                        value={form.pais.id}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        required
+                                    >
+                                        <option value="">Seleccione un país</option>
+                                        {paises.map((pais) => (
+                                            <option key={pais.id} value={pais.id}>
+                                                {pais.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div> */}
+
+                                <div>
+                                    <label className="text-sm text-gray-300">País</label>
+                                    <Combobox value={selectedPais} onChange={handlePaisSelect}>
+                                        <div className="relative mt-1">
+                                            <div className="relative w-full cursor-default overflow-hidden rounded-md bg-gray-700 text-white border border-gray-600 focus-within:ring-2 focus-within:ring-indigo-500">
+                                                <Combobox.Input 
+                                                    className="w-full border-none py-2 pl-3 pr-10 bg-gray-700 text-white focus:ring-0"
+                                                    displayValue={(pais) => pais ? pais.name : ''}
+                                                    onChange={(event) => setQuery(event.target.value)}
+                                                    placeholder="Buscar país..."
+                                                    required
+                                                />
+                                                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                    <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                </Combobox.Button>
+                                            </div>
+                                            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 text-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                {filteredPaises.length === 0 && query !== '' ? (
+                                                    <div className="relative cursor-default select-none py-2 px-4 text-gray-400">
+                                                        No se encontró ningún país.
+                                                    </div>
+                                                    ) : (
+                                                        filteredPaises.map((pais) => (
+                                                            <Combobox.Option
+                                                                key={pais.id}
+                                                                className={({ active }) =>
+                                                                    `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                                                    active ? 'bg-indigo-600 text-white' : 'text-gray-300'
+                                                                    }`
+                                                                }
+                                                                value={pais}
+                                                            >
+                                                                {({ selected, active }) => (
+                                                                    <>
+                                                                        <span
+                                                                            className={`block truncate ${
+                                                                            selected ? 'font-medium' : 'font-normal'
+                                                                            }`}
+                                                                        >
+                                                                            {pais.name}
+                                                                        </span>
+                                                                        {selected ? (
+                                                                            <span
+                                                                            className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                                                                                active ? 'text-white' : 'text-indigo-400'
+                                                                            }`}
+                                                                            >
+                                                                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                                            </span>
+                                                                        ) : null}
+                                                                    </>
+                                                                )}
+                                                            </Combobox.Option>
+                                                        ))
+                                                    )}
+                                            </Combobox.Options>
+                                        </div>
+
+                                    </Combobox>
+                                    {errors['pais.id'] && (
+                                        <p className="text-red-400 text-sm mt-1">{errors['pais.id']}</p>
+                                    )}
+                                </div>
                             </div>
 
                            {/* ✅ Botón de envío */}
@@ -344,15 +356,12 @@ const DepartamentoCreatePage = () => {
                                 </button>
                             </div>
                         </form>
-
                         {/* Imagen estática a la derecha */}
                         <div className="hidden lg:flex items-center justify-center">
                             <img src={worldGlobe} alt="Ilustración mundo" className="w-3/4 max-w-sm opacity-80" />
                         </div>
-
                     </div>
-
-		        </DepartamentoSection>
+                </Section>
 			</main>
 		</div>
     )

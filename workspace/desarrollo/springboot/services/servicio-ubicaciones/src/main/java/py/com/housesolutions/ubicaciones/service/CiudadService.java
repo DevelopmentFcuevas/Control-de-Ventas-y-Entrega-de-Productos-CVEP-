@@ -7,6 +7,7 @@ import py.com.housesolutions.ubicaciones.model.CiudadDTO;
 import py.com.housesolutions.ubicaciones.model.CiudadResponseDTO;
 import py.com.housesolutions.ubicaciones.model.CiudadUpdateDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CiudadService {
@@ -19,4 +20,8 @@ public interface CiudadService {
     CiudadResponseDTO create(CiudadCreateDTO dto) throws Exception;
     CiudadResponseDTO update(Long id, CiudadUpdateDTO dto) throws Exception;
     void delete(final Long id) throws Exception;
+    long countByEstado(Estado estado) throws Exception;
+    long countByFechaCreacion(LocalDate fecha) throws Exception;
+    List<CiudadResponseDTO> findAllByDepartamentoId(Long departamentoId) throws Exception;
+
 }

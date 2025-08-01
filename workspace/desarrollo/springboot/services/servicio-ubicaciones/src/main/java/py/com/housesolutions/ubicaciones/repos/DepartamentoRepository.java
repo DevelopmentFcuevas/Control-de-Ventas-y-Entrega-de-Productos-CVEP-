@@ -36,4 +36,8 @@ public interface DepartamentoRepository extends JpaRepository<Departamento, Long
     @Query("SELECT COUNT(d) FROM Departamento d WHERE d.deleted = false AND DATE(d.createdAt) = :fecha")
     long countCreatedToday(@Param("fecha") LocalDate fecha);
 
+    // Obtener departamentos filtrados por país
+    @Query("SELECT d FROM Departamento d WHERE d.pais.id = :paisId AND d.deleted = false")
+    List<Departamento> findByPaisId(@Param("paisId") Long paisId);
+
 }

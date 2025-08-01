@@ -18,4 +18,5 @@ public interface DepartamentoService {
     void delete(final Long id) throws Exception;
     long countByEstado(Estado estado) throws Exception;
     long countByFechaCreacion(LocalDate fecha) throws Exception;
+    List<DepartamentoResponseDTO> findAllByPaisId(Long paisId) throws Exception;
 }

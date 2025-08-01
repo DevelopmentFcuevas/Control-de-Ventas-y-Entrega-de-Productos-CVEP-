@@ -6,46 +6,46 @@ import { Link } from 'react-router-dom';                                        
 // 📁 Íconos u otros recursos externos
 import { Flag, FlagOff, Goal, LandPlot, Home, List } from 'lucide-react';                               // Íconos para estadísticas
 // 🔧 Servicios (API, helpers, utilidades)
-import { getDepartamentosPorEstado, getDepartamentosPorFecha } from '../../services/api';   // Cliente Axios centralizado
+import { getCiudadesPorEstado, getCiudadesPorFecha } from '../../services/api';   // Cliente Axios centralizado
 // 🧩 Componentes comunes
 import Header from '../../components/common/Header';                                        // Título de la sección
 import StatCard from '../../components/common/StatCard';                                    // Tarjetas de estadísticas
-import Breadcrumb from '../../components/common/Breadcrumb';                    // Migas de pan para la Ruta de navegación
+import Breadcrumb from '../../components/common/Breadcrumb';                                // Migas de pan para la Ruta de navegación
 //Componentes específicos
-import DepartamentoTable from '../../components/departamentos/DepartamentoTable';           // Tabla de datos (ahora de departamentos)
+import CiudadTable from '../../components/ciudades/CiudadTable';           // Tabla de datos (ahora de ciudades)
 
 
 /**
- * Página principal que muestra el listado de departamentos junto con estadísticas rápidas.
+ * Página principal que muestra el listado de ciudades junto con estadísticas rápidas.
  * Se encarga de obtener datos desde la API, renderizar tarjetas de resumen y una tabla interactiva.
  */
-const DepartamentoListPage = () => {
+const CiudadListPage = () => {
 
     // Estado para mostrar mensajes de error al usuario final
     const [error, setError] = useState({ type: '', text: '' });
     
     // Estado local para guardar estadísticas calculadas desde la API
     const [stats, setStats] = useState({
-        totalDepartamentos: 0,
-        newDepartamentosToday: 0,
-        activeDepartamentos: 0,
-        inactiveDepartamentos: 0,
+        totalCiudades: 0,
+        newCiudadesToday: 0,
+        activeCiudades: 0,
+        inactiveCiudades: 0,
     });
     // useEffect que se ejecuta al cargar la página para obtener datos de resumen desde la API
     useEffect(() => {
         const fetchStats = async () => {
             try {
                 const [activosRes, inactivosRes, hoyRes] = await Promise.all([
-                    getDepartamentosPorEstado("ACTIVO"),
-                    getDepartamentosPorEstado("INACTIVO"),
-                    getDepartamentosPorFecha(dayjs().format('YYYY-MM-DD')),
+                    getCiudadesPorEstado("ACTIVO"),
+                    getCiudadesPorEstado("INACTIVO"),
+                    getCiudadesPorFecha(dayjs().format('YYYY-MM-DD')),
                 ]);
 
                 // Validamos los datos esperados
                 if (typeof activosRes.data !== 'number' || typeof inactivosRes.data !== 'number') {
                     setError({ 
                         type: 'error', 
-                        text: 'Los datos de departamentos activos o inactivos no son numéricos.' 
+                        text: 'Los datos de ciudades activos o inactivos no son numéricos.' 
                     });
                 }
 
@@ -53,16 +53,16 @@ const DepartamentoListPage = () => {
                 const total = activosRes.data + inactivosRes.data;
 
                 setStats({
-                    totalDepartamentos: total,
-                    newDepartamentosToday: hoyRes.data,
-                    activeDepartamentos: activosRes.data,
-                    inactiveDepartamentos: inactivosRes.data,
+                    totalCiudades: total,
+                    newCiudadesToday: hoyRes.data,
+                    activeCiudades: activosRes.data,
+                    inactiveCiudades: inactivosRes.data,
                 });
             } catch (error) {
                 console.error("[ESTADÍSTICAS] Error al obtener estadísticas:", error);
                 setError({ 
                     type: 'error', 
-                    text: 'Hubo un problema al cargar las estadísticas de Departamentos. Por favor, intenta nuevamente más tarde.' 
+                    text: 'Hubo un problema al cargar las estadísticas de Ciudades. Por favor, intenta nuevamente más tarde.' 
                 });
             }
         };
@@ -73,7 +73,7 @@ const DepartamentoListPage = () => {
     return (
         <div className='flex-1 overflow-auto relative z-10'>
             {/* 🧭 Header superior de la página(Cabecera con título) */}
-            <Header title='Listado de Departamentos' />
+            <Header title='Listado de Ciudades' />
 
             {/* 🧷 Breadcrumb(Migas de pan para la Ruta de navegación) */}
             <Breadcrumb items={[
@@ -98,24 +98,24 @@ const DepartamentoListPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1 }}
                 >
-                    <StatCard name="Total de Departamentos" icon={Flag} value={stats.totalDepartamentos.toLocaleString()} color='#6366F1' />
-                    <StatCard name="Nuevos Departamentos Agregados(hoy)" icon={LandPlot} value={stats.newDepartamentosToday} color='#10B981' />
-                    <StatCard name="Departamentos Activos" icon={Goal} value={stats.activeDepartamentos.toLocaleString()} color='#F59E0B' />
-                    <StatCard name="Departamentos Inactivos" icon={FlagOff} value={stats.inactiveDepartamentos} color='#EF4444' />
+                    <StatCard name="Total de Ciudades" icon={Flag} value={stats.totalCiudades.toLocaleString()} color='#6366F1' />
+                    <StatCard name="Nuevas Ciudades Agregadas(hoy)" icon={LandPlot} value={stats.newCiudadesToday} color='#10B981' />
+                    <StatCard name="Ciudades Activos" icon={Goal} value={stats.activeCiudades.toLocaleString()} color='#F59E0B' />
+                    <StatCard name="Ciudades Inactivos" icon={FlagOff} value={stats.inactiveCiudades} color='#EF4444' />
                 </motion.div>
 
-                {/* Botón para agregar nuevo departamento */}
+                {/* Botón para agregar nueva ciudad */}
                 <div className="flex justify-end mb-4">
                     <Link
-                        to="/departamentos/nuevo"
+                        to="/ciudades/nuevo"
                         className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     >
-                        + Agregar Departamento
+                        + Agregar
                     </Link>
                 </div>
 
-                {/* Tabla con datos detallados de departamentos */}
-                <DepartamentoTable />
+                {/* Tabla con datos detallados de ciudades */}
+                <CiudadTable />
             </main>
 
         </div>
@@ -123,4 +123,4 @@ const DepartamentoListPage = () => {
 
 }
 
-export default DepartamentoListPage;
+export default CiudadListPage;

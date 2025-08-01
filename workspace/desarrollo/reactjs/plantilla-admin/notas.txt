@@ -16,3 +16,7 @@ $ npm i framer-motion
 $ npm install dayjs
 
 $ npm run dev
+
+$ npm install @headlessui/react
+
+$ npm install @heroicons/react
