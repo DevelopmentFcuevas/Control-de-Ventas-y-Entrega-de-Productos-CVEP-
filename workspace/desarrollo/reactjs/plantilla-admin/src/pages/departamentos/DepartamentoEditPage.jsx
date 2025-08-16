@@ -205,6 +205,7 @@ const DepartamentoEditPage = () => {
                 text: '¡El departamento se actualizo correctamente!' 
             });
 
+            // Redirigir tras breve pausa
             setTimeout(() => navigate(`/departamentos/${id}`), 1500);
         } catch (error) {
             console.error('Error en handleSubmit - No se pudo actualizar el departamento:', error);

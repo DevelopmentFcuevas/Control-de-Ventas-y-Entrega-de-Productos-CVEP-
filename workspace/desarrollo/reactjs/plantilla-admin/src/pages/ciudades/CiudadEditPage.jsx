@@ -1,9 +1,11 @@
 // 📦 Librerías externas
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';                          // Navegación interna con React Router
+import { Combobox } from '@headlessui/react';
 // 📁 Íconos u otros recursos externos
 import { List, Pencil } from "lucide-react";                                          // Íconos
 import worldGlobe from '../../assets/world-globe.png';                              // Imagen de ejemplo
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';                                             // Cliente Axios centralizado
 // 🧩 Componentes comunes
@@ -24,26 +26,139 @@ const CiudadEditPage = () => {
     // 🔁 Navegación programática tras guardar
     const navigate = useNavigate();
 
+    //  📊 Estado del formulario con los campos de la ciudad a modificar.
+    // Este estado mantiene los valores que el usuario ingresa en el formulario.
+    const [form, setForm] = useState({
+        name: '',
+        codigoPostal: '',
+        paisId: '',
+		departamentoId: '',
+    });
+    
     // Estado para mostrar mensajes globales al usuario (éxito o error)
     const [message, setMessage] = useState({ type: '', text: '' });
+    
+    // ❗ Estado para guardar los errores del formulario, clave: nombre del campo.
+    // Guarda mensajes de error específicos para cada campo del formulario.
+    const [errors, setErrors] = useState({});
 
-    
-    
+    // Estado para indicar si se está realizando una operación (como guardar)
+    // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
+    const [loading, setLoading] = useState(false);
     
     // Estado para mostrar la lista de paises del Select.
     const [paises, setPaises] = useState([]);
+
+    // Estado para mostrar la lista de departamentos del Select.
+    const [departamentos, setDepartamentos] = useState([]);
+
+    const [selectedPais, setSelectedPais] = useState(null);
+	const [query, setQuery] = useState('');
+    const filteredPaises = query === ''
+		? paises
+		: paises.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
+    
+    /*
     // Obtener lista de países al cargar la página.
     useEffect(() => {
         axios.get('/paises')
             .then(res => setPaises(res.data)) //setea en la variable 'paises'.
             .catch(err => console.error("Error al obtener países:", err));
     }, []);
-    // Estado para mostrar la lista de departamentos del Select.
-    const [departamentos, setDepartamentos] = useState([]);
+    */
+
+    // 🚀 Obtener la ciudad y países al montar
+	/*useEffect(() => {
+		const fetchInitialData = async () => {
+			try {
+				const [resCiudad, resPaises] = await Promise.all([
+					axios.get(`/ciudades/${id}`),
+					axios.get('/paises'),
+				]);
+
+                console.log("DATA DEPARTAMENTO ID" + resCiudad.data.departamento.id);
+                console.log("DATA DEPARTAMENTO NAME" + resCiudad.data.departamento.name);
+                console.log("DATA PAIS ID" + resCiudad.data.departamento.pais.id);
+                console.log("DATA PAIS NAME" + resCiudad.data.departamento.pais.name);
+
+				const ciudad = resCiudad.data;
+			    //const paisesList = resPaises.data;
+			    //const paisActual = paisesList.find(p => p.id === ciudad.paisId);
+                const paisActual = resPaises.data.find(p => p.id === ciudad.paisId);
+
+				//setPaises(paisesList);
+                setPaises(resPaises.data);
+                setSelectedPais(paisActual || null); // Esto hace que el Combobox lo seleccione
+
+                setForm({
+                    ...ciudad,
+                    name: ciudad.name ?? '',
+                    codigoPostal: ciudad.codigoPostal ?? '',
+                    paisId: ciudad.paisId ?? '',
+                    departamentoId: ciudad.departamentoId ?? '',
+                });
+
+                // ⚠️ Cargar departamentos basados en el país de la ciudad
+				if (ciudad.paisId) {
+					const resDeps = await axios.get(`/departamentos/pais/${ciudad.paisId}`);
+					setDepartamentos(resDeps.data);
+
+					// Establecer el departamentoId luego de tener los departamentos cargados
+					setForm(prev => ({
+						...prev,
+						departamentoId: ciudad.departamentoId ?? '',
+					}));
+				}
+
+			} catch (error) {
+				console.error("❌ Error al cargar datos:", error);
+				setMessage({ type: 'error', text: 'Error al cargar datos de la ciudad.' });
+			}
+		};
+
+		fetchInitialData();
+	}, [id]);*/
+
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const [resCiudad, resPaises] = await Promise.all([
+                    axios.get(`/ciudades/${id}`),
+                    axios.get('/paises'),
+                ]);
+
+                const ciudad = resCiudad.data;
+                const paisId = ciudad.departamento?.pais?.id || '';
+                const departamentoId = ciudad.departamento?.id || '';
+
+                setPaises(resPaises.data);
+
+                const paisActual = resPaises.data.find(p => p.id === paisId) || null;
+                setSelectedPais(paisActual);
+
+                setForm({
+                    name: ciudad.name ?? '',
+                    codigoPostal: ciudad.codigoPostal ?? '',
+                    paisId,
+                    departamentoId
+                });
+
+                if (paisId) {
+                    const resDeps = await axios.get(`/departamentos/pais/${paisId}`);
+                    setDepartamentos(resDeps.data);
+                }
+            } catch (error) {
+                console.error("❌ Error al cargar datos:", error);
+                setMessage({ type: 'error', text: 'Error al cargar datos de la ciudad.' });
+            }
+        };
+
+        fetchInitialData();
+    }, [id]);
     
     
     
-    
+    /*
     // 📡 Cargar datos actuales de la ciudad al montar el componente
     useEffect(() => {
         axios.get(`/ciudades/${id}`)
@@ -62,19 +177,34 @@ const CiudadEditPage = () => {
                 });
             });
     }, [id]);
-
+    */
+    
+    // 🔁 Cargar departamentos al cambiar país
+	useEffect(() => {
+		if (form.paisId) {
+			axios.get(`/departamentos/pais/${form.paisId}`)
+				.then(res => setDepartamentos(res.data))
+				.catch(() => setDepartamentos([]));
+		} else {
+			setDepartamentos([]);
+		}
+	}, [form.paisId]);
+    
+    /*
     //  📊 Estado del formulario con los campos de la ciudad a modificar.
     // Este estado mantiene los valores que el usuario ingresa en el formulario.
     const [form, setForm] = useState({
         name: '',
         codigoPostal: '',
-        paisId: '',
-        departamentoId: '',
+        /* paisId: '',
+        departamentoId: '', /
+        pais: { id: '' },
+        departamento: { id: '' }
     });
+    */
 
 
-
-
+    /*
     // Obtener departamentos cuando cambia el país
     useEffect(() => {
         if (!form.paisId) {
@@ -90,24 +220,33 @@ const CiudadEditPage = () => {
                 setDepartamentos([]);
             });
     }, [form.paisId]);
+    */
 
 
 
+    const handlePaisSelect = (pais) => {
+		setSelectedPais(pais);
+		setForm(prev => ({
+			...prev,
+			paisId: pais?.id || '',
+			departamentoId: '', // Resetea el departamento
+		}));
+	};
 
-    
+
     // 📌 Maneja los cambios en los campos del formulario
     const handleChange = e => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
     
-    // ❗ Estado para guardar los errores del formulario, clave: nombre del campo.
+    /* // ❗ Estado para guardar los errores del formulario, clave: nombre del campo.
     // Guarda mensajes de error específicos para cada campo del formulario.
     const [errors, setErrors] = useState({});
 
     // Estado para indicar si se está realizando una operación (como guardar)
     // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false); */
 
     // ✅ Función para validar los campos del formulario antes de enviarlos al servidor.
     // Retorna `true` si todos los campos son válidos, `false` en caso contrario.
@@ -164,10 +303,16 @@ const CiudadEditPage = () => {
 
         try {
             //Convertir algunos campos a mayúsculas automáticamente antes de enviar.
+            //const sanitizedForm = {
+            //    ...form,
+            //    name: form.name.trim(),
+            //    codigoPostal: form.codigoPostal.trim().toUpperCase(),
+            //};
             const sanitizedForm = {
-                ...form,
+                id: Number(id),
                 name: form.name.trim(),
                 codigoPostal: form.codigoPostal.trim().toUpperCase(),
+                departamento: { id: Number(form.departamentoId) }
             };
 
             axios.put(`/ciudades/${id}`, sanitizedForm);
@@ -219,7 +364,7 @@ const CiudadEditPage = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 
                                 {/* 🌍 Selector de país */}
-                                <div>
+                                {/* <div>
                                     <label className="text-lg font-semibold text-gray-100">País</label>
                                     <select
                                         name="paisId"
@@ -233,10 +378,10 @@ const CiudadEditPage = () => {
                                             <option key={pais.id} value={pais.id}>{pais.name}</option>
                                         ))}
                                     </select>
-                                </div>
+                                </div> */}
 
                                  {/* 🌍 Selector de departamento */}
-                                <div>
+                                {/* <div>
                                     <label className="text-lg font-semibold text-gray-100">Departamento</label>
                                     <select
                                         name="departamentoId"
@@ -251,6 +396,71 @@ const CiudadEditPage = () => {
                                             <option key={dep.id} value={dep.id}>{dep.name}</option>
                                         ))}
                                     </select>
+                                </div> */}
+
+                                {/* País con buscador */}
+                                <div>
+                                    <label className="text-lg font-semibold text-gray-100">País</label>
+                                    <Combobox value={selectedPais} onChange={handlePaisSelect}>
+                                        <div className="relative mt-1">
+                                            <Combobox.Input
+                                                className="w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none"
+                                                displayValue={(pais) => pais?.name || ''}
+                                                onChange={(e) => setQuery(e.target.value)}
+                                                placeholder="Buscar país..."
+                                            />
+                                            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
+                                            </Combobox.Button>
+                                        </div>
+                                        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-gray-800 text-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+                                            {filteredPaises.length === 0 && query !== '' ? (
+                                                <div className="px-4 py-2 text-gray-400">No se encontró ningún país.</div>
+                                            ) : (
+                                                filteredPaises.map((pais) => (
+                                                    <Combobox.Option
+                                                        key={pais.id}
+                                                        value={pais}
+                                                        className={({ active }) => `cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-indigo-600 text-white' : 'text-gray-300'}`}
+                                                    >
+                                                        {({ selected }) => (
+                                                            <>
+                                                                <span className={`${selected ? 'font-medium' : 'font-normal'}`}>
+                                                                    {pais.name}
+                                                                </span>
+                                                                {selected && (
+                                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                                                        <CheckIcon className="h-5 w-5 text-indigo-400" />
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </Combobox.Option>
+                                                ))
+                                            )}
+                                        </Combobox.Options>
+                                    </Combobox>
+                                    {errors.paisId && <p className="text-red-400 text-sm mt-1">{errors.paisId}</p>}
+                                </div>
+
+                                {/* Departamento */}
+                                <div>
+                                    <label className="text-lg font-semibold text-gray-100">Departamento</label>
+                                    <select
+                                        key={form.departamentoId}
+                                        name="departamentoId"
+                                        value={form.departamentoId}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600"
+                                        required
+                                        disabled={!form.paisId}
+                                    >
+                                        <option value="">Seleccione un departamento</option>
+                                        {departamentos.map(dep => (
+                                            <option key={dep.id} value={dep.id}>{dep.name}</option>
+                                        ))}
+                                    </select>
+                                    {errors.departamentoId && <p className="text-red-400 text-sm mt-1">{errors.departamentoId}</p>}
                                 </div>
 
                                 {/* 🧱 Campos individuales generados dinámicamente */}
