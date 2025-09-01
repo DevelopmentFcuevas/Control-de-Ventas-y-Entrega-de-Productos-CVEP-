@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 
 // Importación de íconos desde `lucide-react`, una librería de íconos modernos.
-import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp, Users, Flag, MapPin } from 'lucide-react';
+import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp, Flag, MapPin } from 'lucide-react';
 
 // Librerías para animaciones (animación de transición del sidebar y textos)
 import { AnimatePresence, motion } from 'framer-motion';
@@ -24,6 +24,7 @@ const SIDEBAR_ITEMS = [
     { name:"Paises", icon:Flag, color:"#EC4899", href:"/paises" },
     { name:"Departamentos", icon:MapPin, color:"#EC4899", href:"/departamentos" },
     { name:"Ciudades", icon:MapPin, color:"#EC4899", href:"/ciudades" },
+    { name:"Barrios", icon:MapPin, color:"#EC4899", href:"/barrios" },
     { name:"Sales", icon:DollarSign, color:"#10B981", href:"/sales" },
     { name:"Orders", icon:ShoppingCart, color:"#F59E0B", href:"/orders" },
     { name:"Analytics", icon:TrendingUp, color:"#3B82F6", href:"/analytics" },

@@ -1,11 +1,9 @@
 package py.com.housesolutions.ubicaciones.service;
 
 import py.com.housesolutions.ubicaciones.domain.Barrio;
-import py.com.housesolutions.ubicaciones.model.BarrioCreateDTO;
-import py.com.housesolutions.ubicaciones.model.BarrioDTO;
-import py.com.housesolutions.ubicaciones.model.BarrioResponseDTO;
-import py.com.housesolutions.ubicaciones.model.BarrioUpdateDTO;
+import py.com.housesolutions.ubicaciones.model.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface BarrioService {
@@ -17,4 +15,6 @@ public interface BarrioService {
     BarrioResponseDTO create(BarrioCreateDTO request) throws Exception;
     BarrioResponseDTO update(Long id, BarrioUpdateDTO request ) throws Exception;
     void delete(Long id) throws Exception;
+    long countByEstado(Estado estado) throws Exception;
+    long countByFechaCreacion(LocalDate fecha) throws Exception;
 }

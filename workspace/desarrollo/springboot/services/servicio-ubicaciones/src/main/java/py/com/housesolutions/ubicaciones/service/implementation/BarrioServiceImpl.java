@@ -16,6 +16,7 @@ import py.com.housesolutions.ubicaciones.service.CiudadService;
 import py.com.housesolutions.ubicaciones.util.*;
 import py.com.housesolutions.ubicaciones.util.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +102,7 @@ public class BarrioServiceImpl implements BarrioService {
             response.setCiudad(ciudad);
         }
         response.setName(entity.getName());
+        response.setEstado(entity.getEstado());
         response.setCreatedAt(entity.getCreatedAt());
         response.setUpdatedAt(entity.getUpdatedAt());
         return response;
@@ -372,4 +374,35 @@ public class BarrioServiceImpl implements BarrioService {
             throw new Exception("Ha ocurrido un error inesperado en la eliminación. Por favor, contacta al administrador del sistema.");
         }
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByEstado(Estado estado) throws Exception {
+        try {
+            log.info("BarrioService-countByEstado::Contando barrios por estado: {}", estado);
+            return repository.countByEstadoAndNotDeleted(estado);
+        } catch (DataAccessException e) {
+            log.error("BarrioService-countByEstado-DataAccessException::Error al acceder a la base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos.");
+        } catch (Exception e) {
+            log.error("BarrioService-countByEstado-Exception::Error inesperado", e);
+            throw new InternalServerErrorException("Error inesperado al contar barrios por estado.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long countByFechaCreacion(LocalDate fecha) throws Exception {
+        try {
+            log.info("BarrioService-countByFechaCreacion::Contando barrios por fecha: {}", fecha);
+            return repository.countCreatedToday(fecha);
+        } catch (DataAccessException e) {
+            log.error("BarrioService-countByFechaCreacion-DataAccessException::Error al acceder a la base de datos", e);
+            throw new DatabaseException("Error al acceder a la base de datos.");
+        } catch (Exception e) {
+            log.error("BarrioService-countByFechaCreacion-Exception::Error inesperado", e);
+            throw new InternalServerErrorException("Error inesperado al contar barrios por fecha.");
+        }
+    }
+
 }

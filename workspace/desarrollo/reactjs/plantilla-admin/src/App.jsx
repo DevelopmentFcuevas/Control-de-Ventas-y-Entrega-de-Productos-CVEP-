@@ -21,6 +21,10 @@ import CiudadListPage from "./pages/ciudades/CiudadListPage";
 import CiudadCreatePage from "./pages/ciudades/CiudadCreatePage";
 import CiudadDetailPage from "./pages/ciudades/CiudadDetailPage";
 import CiudadEditPage from "./pages/ciudades/CiudadEditPage";
+import BarrioListPage from "./pages/barrios/BarrioListPage";
+import BarrioCreatePage from "./pages/barrios/BarrioCreatePage";
+import BarrioDetailPage from "./pages/barrios/BarrioDetailPage";
+import BarrioEditPage from "./pages/barrios/BarrioEditPage";
 
 // Componente principal de la aplicación
 function App() {
@@ -68,6 +72,12 @@ function App() {
         <Route path="/ciudades/nuevo" element={<CiudadCreatePage />} />
         <Route path="/ciudades/:id" element={<CiudadDetailPage />} />
         <Route path="/ciudades/:id/edit" element={<CiudadEditPage />} />
+
+        {/* Páginas de barrios */}
+        <Route path="/barrios" element={<BarrioListPage />} />
+        <Route path="/barrios/nuevo" element={<BarrioCreatePage />} />
+        <Route path="/barrios/:id" element={<BarrioDetailPage />} />
+        <Route path="/barrios/:id/edit" element={<BarrioEditPage />} />
         
         {/* Página de ventas */}
         <Route path="/sales" element={<SalesPage />} />

@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';                                         
 import dayjs from 'dayjs';                                                                  // Para manejar fechas fácilmente
 import { Link } from 'react-router-dom';                                                    // Navegación interna con React Router
 // 📁 Íconos u otros recursos externos
-import { Flag, FlagOff, Goal, LandPlot, Home, List } from 'lucide-react';                               // Íconos para estadísticas
+import { Flag, FlagOff, Goal, LandPlot, Home, List } from 'lucide-react';                   // Íconos para estadísticas
 // 🔧 Servicios (API, helpers, utilidades)
-import { getCiudadesPorEstado, getCiudadesPorFecha } from '../../services/api';   // Cliente Axios centralizado
+import { getCiudadesPorEstado, getCiudadesPorFecha } from '../../services/api';             // Cliente Axios centralizado
 // 🧩 Componentes comunes
 import Header from '../../components/common/Header';                                        // Título de la sección
 import StatCard from '../../components/common/StatCard';                                    // Tarjetas de estadísticas
 import Breadcrumb from '../../components/common/Breadcrumb';                                // Migas de pan para la Ruta de navegación
-//Componentes específicos
-import CiudadTable from '../../components/ciudades/CiudadTable';           // Tabla de datos (ahora de ciudades)
+// Componentes específicos
+import CiudadTable from '../../components/ciudades/CiudadTable';                            // Tabla de datos (ahora de ciudades)
 
 
 /**

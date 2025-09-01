@@ -1,108 +1,124 @@
 // 📦 Librerías externas
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";						// Librería para animaciones
 import { Link } from 'react-router-dom';					// Navegación interna con React Router
-import toast from 'react-hot-toast';
+import dayjs from 'dayjs';                                  // Para manejar fechas fácilmente
+import toast from "react-hot-toast";
 // 📁 Íconos u otros recursos externos
-import { Eye, Pencil, Search, Trash2 } from 'lucide-react';	// Íconos
-import { flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import { Search, Pencil, Trash2, Eye } from "lucide-react";	// Íconos
+import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';						// Cliente Axios centralizado
 // 🧩 Componentes comunes
-import ConfirmModal from '../common/ConfirmModal';
+import ConfirmModal from "../common/ConfirmModal";			// Modal de Confirmación
+import ErrorMessage from "../common/ErrorMessage";			// Mensajes de Error
 // Componentes específicos
 
 
 /**
- * Componente que renderiza una tabla de departamentos con búsqueda, ordenamiento y paginación.
+ * Componente que renderiza una tabla de barrios con búsqueda, ordenamiento y paginación.
  */
-const DepartamentoTable = () => {
-    // Estado para el término de búsqueda
-    const [searchTerm, setSearchTerm] = useState("");
+const BarrioTable = () => {
+	// Estado para el término de búsqueda
+	const [searchTerm, setSearchTerm] = useState("");
 
-    // Estado que almacena todos los registros obtenidos desde la API
+	// Estado que almacena todos los registros obtenidos desde la API
     const [records, setRecords] = useState([]);
 
-    // Estado que contiene los registros filtrados (por búsqueda), inicializado con un array vacío.
-    const [filteredDepartamentos, setFilteredDepartamentos] = useState([]);
+	// Estado que contiene los registros filtrados (por búsqueda), inicializado con un array vacío.
+    const [filteredBarrios, setFilteredBarrios] = useState([]);
 
-    // Estado para manejar la animación del loader mientras se obtienen los datos
-    const [loading, setLoading] = useState(true);
+	// Estado para manejar la animación del loader mientras se obtienen los datos
+	const [loading, setLoading] = useState(true);
 
-    // Estado para manejar la lógica de ordenamiento de columnas
-    const [sorting, setSorting] = useState([]);
+	// Estado para manejar la lógica de ordenamiento de columnas
+	const [sorting, setSorting] = useState([]);
 
-    // Estado para manejar errores
-    const [error, setError] = useState(null);
+	// Estado para manejar errores
+	const [error, setError] = useState(null);
 
-    const [modalOpen, setModalOpen] = useState(false);
+	// Estado que controla si el modal de confirmación está abierto o cerrado
+	const [modalOpen, setModalOpen] = useState(false);
 
-    const [selectedDepartamento, setSelectedDepartamento] = useState(null);
+	// Estado que guarda el barrio seleccionado para eliminar (usado al abrir el modal)
+	const [selectedBarrio, setSelectedBarrio] = useState(null);
 
-    /**
+	/**
 	 * useEffect que se ejecuta una sola vez al montar el componente.
-	 * Realiza la llamada a la API para obtener la lista de departamentos.
+	 * Realiza la llamada a la API para obtener la lista de barrios.
 	 */
 	useEffect(() => {
 		setLoading(true); // Mostrar el loader antes de iniciar la carga
 		setError(null); // Limpiar errores anteriores
 
-        axios.get('http://localhost:8080/api/departamentos')
+        axios.get('http://localhost:8080/api/barrios')
             .then(response => {
-                setRecords(response.data); // Guarda todos los departamentos en estado original
-                setFilteredDepartamentos(response.data); // Inicializa la tabla con todos los departamentos
+                setRecords(response.data); // Guarda todos los barrios en estado original
+                setFilteredBarrios(response.data); // Inicializa la tabla con todos los barrios
             })
             .catch(error => {
                 console.error('Error al obtener los datos:', error);
-				setError("No se pudo cargar la lista de departamentos. Inténtalo más tarde."); // Guarda el error, actualiza el estado de errores.
+				setError("No se pudo cargar la lista de barrios. Inténtalo más tarde."); // Guarda el error, actualiza el estado de errores.
             })
 			.finally(() => {
-				setLoading(false); // Ocultar el loader una vez que se termina la carga.
-			});
+				setLoading(false); // Ocultar el loader una vez que se termina la carga
+			});;
     }, []);
 
-    /**
+	
+	/**
 	 * Filtra la tabla en tiempo real con base al término de búsqueda.
-	 * Filtra por el campo "name" (nombre del departamento).
+	 * Filtra por el campo "name" (nombre del barrio).
 	 */
 	const handleSearch = (e) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
 
-		// Filtro por nombre (puedes agregar más campos si quieres..).
+		// Filtro por nombre (puedes agregar más campos si quieres)
         const filtered = records.filter(
-            (departamento) => departamento.name.toLowerCase().includes(term) 
-				/*|| departamento.continente.toLowerCase().includes(term)*/
-				|| departamento.estado.toLowerCase().includes(term)
+            (barrio) => barrio.name.toLowerCase().includes(term) 
+				/* || barrio.continente.toLowerCase().includes(term) */
+				|| barrio.estado.toLowerCase().includes(term)
         );
-        setFilteredDepartamentos(filtered);
+        setFilteredBarrios(filtered);
     };
 
-	const formatRegion = (value) => {
-		return value
-			.toLowerCase()
-			.replace(/_/g, ' ')
-			.replace(/\b\w/g, c => c.toUpperCase());
-	};
+	/**
+	 * Formatea el nombre del continente:
+	 * - lo convierte todo a minúsculas
+	 * - reemplaza guiones bajos con espacios
+	 * - y luego capitaliza la primera letra de cada palabra.
+	 */
+	/* const formatContinente = (value) => {
+		return value.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+	}; */
 
-    const handleDelete = async () => {
+	/**
+	 * Maneja la eliminación de un barrio.
+	 * - Llama a la API para eliminarlo
+	 * - Muestra mensaje de éxito o error
+	 * - Refresca la tabla si se elimina correctamente
+	 */
+	const handleDelete = async () => {
 		try {
-			await axios.delete(`departamentos/${selectedDepartamento.id}`);
-			//await api.delete(`departamentos/${selectedDepartamento.id}`);
-			toast.success("Departamento eliminado correctamente");
-			setModalOpen(false);
+			await axios.delete(`barrios/${selectedBarrio.id}`);
+			toast.success("Barrio eliminado correctamente");
+			setModalOpen(false); // Cierra el modal
 
-			// Refrescar la lista de departamentos
-			const response = await axios.get("departamentos");
+			// Refrescar la lista de barrios(Actualiza los datos tras la eliminación).
+			const response = await axios.get("barrios");
 			setRecords(response.data);
-			setFilteredDepartamentos(response.data);
+			setFilteredBarrios(response.data);
+
+			// Mensaje amigable para el usuario
+			setError(null); // Borra errores anteriores, si existían
 		} catch (error) {
-			toast.error("Error al eliminar el departamento");
-			console.error(error);
+			console.error("Error al eliminar barrio:", error?.response?.data || error.message || error);
+			setError("No se pudo eliminar el barrio. Verifica tu conexión o intenta más tarde.");
 		}
 	};
 
-    /**
+	/**
 	 * Definición de columnas de la tabla.
 	 * Cada columna puede tener una key (campo del objeto), un título y una forma 
 	 * personalizada de renderizar el contenido.
@@ -110,51 +126,28 @@ const DepartamentoTable = () => {
 	const columns = useMemo(() => [
 		{
 			accessorKey: 'id',
-			header: 'Id',
+			header: '#Id',
 			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
 		},
 		{
 			accessorKey: 'name',
+			header: 'Barrio',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'ciudad.name',
+			header: 'Ciudad',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'ciudad.departamento.name',
 			header: 'Departamento',
-			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
-		},
-		{
-			accessorKey: 'codigoIso',
-			header: 'Código ISO',
-			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
-		},
-		{
-			accessorKey: 'capital',
-			header: 'Capital',
 			cell: (info) => (<div className='text-sm text-gray-300'>{info.getValue()}</div>),
 		},
 		{
-			accessorKey: 'poblacion',
-			header: 'Población',
-			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
-		},
-		{
-			accessorKey: 'superficie',
-			header: 'Superficie',
-			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
-		},
-		{
-			accessorKey: 'region',
-			header: 'Region',
-			cell: (info) => (
-				<div className='text-sm text-gray-300'>
-					{formatRegion(info.getValue())}
-				</div>
-			),
-		},
-		{
-			accessorKey: 'pais.name',
+			accessorKey: 'ciudad.departamento.pais.name',
 			header: 'País',
-			cell: (info) => (
-				<div className='text-sm text-gray-300'>
-					{info.row.original.pais?.name || 'No especificado'}
-				</div>
-			),
+			cell: (info) => (<div className='text-sm text-gray-300'>{info.getValue()}</div>),
 		},
 		{
 			accessorKey: 'estado',
@@ -169,32 +162,43 @@ const DepartamentoTable = () => {
 			},
 		},
 		{
+			accessorKey: 'createdAt',
+			/* cell: (info) => <div className='text-sm text-gray-300'>{dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A')}</div>, */
+			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
+			header: 'Fecha Creación',
+		},
+		{
+			accessorKey: 'updatedAt',
+			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
+			header: 'Fecha Actualización',
+		},
+		{
 			id: 'acciones',
 			header: 'Acciones',
 			cell: ({ row }) => {
-				const departamento = row.original;
+				const barrio = row.original;
 		
 				return (
 					<div className='flex gap-2 text-gray-300'>
 						<Link
-							to={`/departamentos/${departamento.id}`}
-							className='hover:text-blue-400 flex items-center'
+							to={`/barrios/${barrio.id}`}
+							className='hover:text-amber-400 flex items-center'
 							title="Ver detalles"
 						>
 							<Eye size={18} />
 						</Link>
 						<Link
-							to={`/departamentos/${departamento.id}/edit`}
+							to={`/barrios/${barrio.id}/edit`}
 							className="hover:text-blue-400 flex items-center"
 							title="Editar"
 						>
 							<Pencil size={18} />
 						</Link>
 						<button
-    					    className='hover:text-red-400'
+    						className='hover:text-red-400'
     						title="Eliminar"
 							onClick={() => {
-								setSelectedDepartamento(departamento);
+								setSelectedBarrio(barrio);
 								setModalOpen(true);
 							}}
 						>
@@ -206,23 +210,23 @@ const DepartamentoTable = () => {
 		},
 	], []);
 
-    /**
-     * Configuración de la tabla usando TanStack Table v8.
-     * Permite manejar ordenamiento, paginación y renderizado.
-    */
-    const table = useReactTable({
-        data: filteredDepartamentos,
-        columns,
-        state: {
-            sorting,
-        },
-        onSortingChange: setSorting,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-    });
+	/**
+	 * Configuración de la tabla usando TanStack Table v8.
+	 * Permite manejar ordenamiento, paginación y renderizado.
+	 */
+	const table = useReactTable({
+		data: filteredBarrios,
+		columns,
+		state: {
+			sorting,
+		},
+		onSortingChange: setSorting,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+	});
 
-    /**
+	/**
 	 * Renderiza un loader mientras se están cargando los datos.
 	 */
 	if (loading) {
@@ -235,10 +239,10 @@ const DepartamentoTable = () => {
 		);
 	}
 
-    /**
+	/**
 	 * Si hay un error se muéstra al usuario.
 	 */
-	if (error) {
+	/* if (error) {
 		return (
 			<div className="flex justify-center items-center h-64">
 				<div className="text-center">
@@ -249,10 +253,10 @@ const DepartamentoTable = () => {
 				</div>
 			</div>
 		);
-	}
-	/* {error && <ErrorMessage message={error} />} */
-
-    return (
+	} */
+	{error && <ErrorMessage message={error} />}
+	
+	return (
 		<motion.div
 			className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700'
 			initial={{ opacity: 0, y: 20 }}
@@ -261,11 +265,11 @@ const DepartamentoTable = () => {
 		>
 			{/* Titulo de la pagina y buscador */}
 			<div className='flex justify-between items-center mb-6'>
-				<h2 className='text-xl font-semibold text-gray-100'>Listado de Departamentos</h2>
+				<h2 className='text-xl font-semibold text-gray-100'>Listado de Barrios</h2>
 				<div className='relative'>
 					<input
 						type='text'
-						placeholder='Buscar departamento...'
+						placeholder='Buscar barrio...'
 						className='bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
 						value={searchTerm}
 						onChange={handleSearch}
@@ -274,8 +278,7 @@ const DepartamentoTable = () => {
 				</div>
 			</div>
 
-			
-			{/* Tabla de datos(Departamentos) */}
+			{/* Tabla de datos(Barrios) */}
 			<div className='overflow-x-auto'>
 				<table className='min-w-full divide-y divide-gray-700'>
 					<thead>
@@ -351,10 +354,10 @@ const DepartamentoTable = () => {
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 				onConfirm={handleDelete}
-				message={`¿Estás seguro que deseas eliminar el departamento "${selectedDepartamento?.name}"? Esta acción no se puede deshacer.`}
+				message={`¿Estás seguro que deseas eliminar el barrio "${selectedBarrio?.name}"? Esta acción no se puede deshacer.`}
 			/>
 		</motion.div>
 	);
-}
+};
 
-export default DepartamentoTable;
+export default BarrioTable;

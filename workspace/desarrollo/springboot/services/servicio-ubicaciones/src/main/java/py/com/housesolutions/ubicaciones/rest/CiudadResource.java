@@ -179,7 +179,6 @@ public class CiudadResource {
             log.error("CiudadResource-update-Exception::Error al actualizar la Ciudad con ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-
     }
 
     // DELETE: Marca una ciudad como eliminada.

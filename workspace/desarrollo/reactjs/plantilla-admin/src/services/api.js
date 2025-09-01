@@ -45,4 +45,11 @@ export const getCiudadesPorEstado = (estado) =>
 export const getCiudadesPorFecha = (fecha) =>
     api.get(`/ciudades/count/fecha/${fecha}`);
 
+
+export const getBarriosPorEstado = (estado) =>
+    api.get(`/barrios/count/estado/${estado}`);
+
+export const getBarriosPorFecha = (fecha) =>
+    api.get(`/barrios/count/fecha/${fecha}`);
+
 export default api;

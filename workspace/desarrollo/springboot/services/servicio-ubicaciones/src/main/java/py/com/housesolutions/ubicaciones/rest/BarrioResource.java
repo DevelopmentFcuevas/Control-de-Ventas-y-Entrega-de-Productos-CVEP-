@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import py.com.housesolutions.ubicaciones.model.BarrioCreateDTO;
 import py.com.housesolutions.ubicaciones.model.BarrioResponseDTO;
 import py.com.housesolutions.ubicaciones.model.BarrioUpdateDTO;
+import py.com.housesolutions.ubicaciones.model.Estado;
 import py.com.housesolutions.ubicaciones.service.BarrioService;
 import py.com.housesolutions.ubicaciones.util.MissingParameterException;
 import py.com.housesolutions.ubicaciones.util.NotFoundException;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -198,6 +201,20 @@ public class BarrioResource {
             log.error("BarrioResource-delete::Error al eliminar el    Barrio con ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: "+e.getMessage());
         }
+    }
+
+    @GetMapping("/count/estado/{estado}")
+    public ResponseEntity<Long> countByEstado(@PathVariable Estado estado) throws Exception {
+        log.info("BarrioResource-countByEstado::Contar barrios por estado {}", estado);
+        long count = service.countByEstado(estado);
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/count/fecha/{fecha}")
+    public ResponseEntity<Long> countByFechaCreacion(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) throws Exception {
+        log.info("BarrioResource-countByFechaCreacion::Contar barrios por fecha {}", fecha);
+        long count = service.countByFechaCreacion(fecha);
+        return ResponseEntity.ok(count);
     }
 
 }

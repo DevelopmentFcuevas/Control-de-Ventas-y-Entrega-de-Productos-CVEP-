@@ -10,6 +10,7 @@ public class BarrioResponseDTO {
     private Long id;
     private CiudadResponseDTO ciudad;
     private String name;
+    private Estado estado;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
