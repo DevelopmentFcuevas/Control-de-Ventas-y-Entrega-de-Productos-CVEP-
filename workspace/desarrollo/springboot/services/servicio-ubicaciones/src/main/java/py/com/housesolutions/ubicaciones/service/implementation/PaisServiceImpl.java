@@ -1,47 +1,84 @@
 package py.com.housesolutions.ubicaciones.service.implementation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import py.com.housesolutions.ubicaciones.domain.Auditoria;
+import py.com.housesolutions.ubicaciones.domain.Moneda;
 import py.com.housesolutions.ubicaciones.domain.Pais;
+import py.com.housesolutions.ubicaciones.domain.PaisMoneda;
 import py.com.housesolutions.ubicaciones.model.*;
 import py.com.housesolutions.ubicaciones.repos.AuditoriaRepository;
+import py.com.housesolutions.ubicaciones.repos.MonedaRepository;
+import py.com.housesolutions.ubicaciones.repos.PaisMonedaRepository;
 import py.com.housesolutions.ubicaciones.repos.PaisRepository;
+import py.com.housesolutions.ubicaciones.service.MonedaService;
+import py.com.housesolutions.ubicaciones.service.PaisMonedaService;
 import py.com.housesolutions.ubicaciones.service.PaisService;
 import py.com.housesolutions.ubicaciones.util.*;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
 public class PaisServiceImpl implements PaisService {
     private final PaisRepository repository;
+    private final MonedaRepository monedaRepository;
+    private final PaisMonedaRepository paisMonedaRepository;
+    private final MonedaService monedaService;
     private final AuditoriaRepository auditoriaRepository;
+    //private final PaisMonedaService paisMonedaService;
+
     // Constructor que inyecta los repositorios.
-    public PaisServiceImpl(final PaisRepository repository, AuditoriaRepository auditoriaRepository) {
+    public PaisServiceImpl(final PaisRepository repository,
+                           MonedaRepository monedaRepository,
+                           PaisMonedaRepository paisMonedaRepository,
+                           MonedaService monedaService, AuditoriaRepository auditoriaRepository//,
+                           //PaisMonedaService paisMonedaService
+    ) {
         this.repository = repository;
+        this.monedaRepository = monedaRepository;
+        this.paisMonedaRepository = paisMonedaRepository;
+        this.monedaService = monedaService;
         this.auditoriaRepository = auditoriaRepository;
+        //this.paisMonedaService = paisMonedaService;
     }
+
+    public MonedaResponseDTO getMonedaResponseById(Long id) {
+        log.info("PaisService-getMonedaResponseById::Iniciando Servicio para obtener moneda por ID");
+        MonedaResponseDTO monedaResponseDTO;
+        try {
+            monedaResponseDTO = monedaService.get(id);
+            log.info("PaisService-getMonedaResponseById::Acción completada sin errores.");
+            return monedaResponseDTO;
+        } catch (Exception e) {
+            log.error("PaisService-getMonedaResponseById::Error en el Service al buscar Moneda", e);
+            return monedaResponseDTO = null;
+        }
+    }
+
+    /*public PaisMonedaResponseDTO getPaisMonedaResponseById(Long id) {
+        log.info("PaisService-getPaisMonedaResponseById::Iniciando Servicio para obtener PaísMoneda por ID");
+        PaisMonedaResponseDTO paisMonedaResponseDTO;
+        try {
+            paisMonedaResponseDTO = paisMonedaService.get(id);
+        } catch (Exception e) {
+            log.error("PaisService-getPaisMonedaResponseById::Error en el Service al buscar PaisMoneda", e);
+            return paisMonedaResponseDTO = null;
+        }
+    }*/
 
 
     // Mapea una entidad Pais a un DTO.
     @Override
     public PaisDTO mapToDTO(Pais entity) {
+        log.info("PaisService-mapToDTO::Iniciando Servicio para mapear una entidad Pais a un DTO");
         PaisDTO dto = new PaisDTO();
         // Mapeo de cada campo de la entidad a su equivalente en el DTO.
         dto.setId(entity.getId());
@@ -52,7 +89,7 @@ public class PaisServiceImpl implements PaisService {
         dto.setPoblacion(entity.getPoblacion());
         dto.setArea(entity.getArea());
         dto.setIdioma(entity.getIdioma());
-        dto.setMoneda(entity.getMoneda());
+        //dto.setMoneda(entity.getMoneda());
         dto.setDominioTld(entity.getDominioTld());
         dto.setHusoHorario(entity.getHusoHorario());
         dto.setContinente(entity.getContinente());
@@ -64,12 +101,16 @@ public class PaisServiceImpl implements PaisService {
         dto.setDeleted(entity.isDeleted());
         dto.setDeletedBy(entity.getDeletedBy());
         dto.setDeletedAt(entity.getDeletedAt());
+
+        log.info("PaisService-mapToDTO::Acción completada sin errores.");
         return dto;
     }
 
     // Mapea una entidad Pais a un PaisResponseDTO para la respuesta.
     @Override
     public PaisResponseDTO mapToResponseDTO(Pais entity) {
+        log.info("PaisService-mapToResponseDTO::Iniciando Servicio para mapear una entidad Pais a un PaisResponseDTO para la respuesta");
+
         PaisResponseDTO response = new PaisResponseDTO();
         // Mapeo de cada campo de la entidad a su equivalente en el ResponseDTO.
         response.setId(entity.getId());
@@ -80,7 +121,13 @@ public class PaisServiceImpl implements PaisService {
         response.setPoblacion(entity.getPoblacion());
         response.setArea(entity.getArea());
         response.setIdioma(entity.getIdioma());
-        response.setMoneda(entity.getMoneda());
+
+        //response.setMoneda(entity.getMoneda());
+        //MonedaResponseDTO monedaResponseDTO = getMonedaResponseById()
+        //PaisMonedaResponseDTO paisMonedaResponseDTO = getPaisMonedaResponseById(entity.getPaisMonedas().get())
+
+
+
         response.setDominioTld(entity.getDominioTld());
         response.setHusoHorario(entity.getHusoHorario());
         response.setContinente(entity.getContinente());
@@ -88,12 +135,16 @@ public class PaisServiceImpl implements PaisService {
         response.setEstado(entity.getEstado());
         response.setCreatedAt(entity.getCreatedAt());
         response.setUpdatedAt(entity.getUpdatedAt());
+
+        log.info("PaisService-mapToResponseDTO::Acción completada sin errores.");
         return response;
     }
 
     // Mapea un DTO a una entidad Pais.
     @Override
     public Pais mapToEntity(PaisDTO dto) {
+        log.info("PaisService-mapToEntity::Iniciando Servicio para mapear un DTO a una entidad Pais");
+
         Pais entity = new Pais();
         // Mapeo de cada campo del DTO a su equivalente en la entidad.
         entity.setId(dto.getId());
@@ -104,7 +155,7 @@ public class PaisServiceImpl implements PaisService {
         entity.setPoblacion(dto.getPoblacion());
         entity.setArea(dto.getArea());
         entity.setIdioma(dto.getIdioma());
-        entity.setMoneda(dto.getMoneda());
+        //entity.setMoneda(dto.getMoneda());
         entity.setDominioTld(dto.getDominioTld());
         entity.setHusoHorario(dto.getHusoHorario());
         entity.setContinente(dto.getContinente());
@@ -118,6 +169,7 @@ public class PaisServiceImpl implements PaisService {
         entity.setDeletedBy(dto.getDeletedBy());
         entity.setDeletedAt(dto.getDeletedAt());
 
+        log.info("PaisService-mapToEntity::Acción completada sin errores.");
         return entity;
     }
 
@@ -263,7 +315,7 @@ public class PaisServiceImpl implements PaisService {
             // Verificar si el país ya existe como eliminado
             Optional<Pais> optionalDeleted = repository.findByNameAndDeleted(request.getName());
             if (optionalDeleted.isPresent()) {
-                //Reutilización de Registros Eliminados
+                // Reutilización de Registros Eliminados
                 Pais deletedEntity = optionalDeleted.get();
                 log.info("PaisService-create::Reactivando el país eliminado con ID: {}", deletedEntity.getId());
 
@@ -274,7 +326,7 @@ public class PaisServiceImpl implements PaisService {
                 deletedEntity.setPoblacion(request.getPoblacion());
                 deletedEntity.setArea(request.getArea());
                 deletedEntity.setIdioma(request.getIdioma());
-                deletedEntity.setMoneda(request.getMoneda());
+                //deletedEntity.setMoneda(request.getMoneda());
                 deletedEntity.setDominioTld(request.getDominioTld());
                 deletedEntity.setHusoHorario(request.getHusoHorario());
                 deletedEntity.setContinente(request.getContinente());
@@ -309,7 +361,7 @@ public class PaisServiceImpl implements PaisService {
                 dto.setPoblacion(request.getPoblacion());
                 dto.setArea(request.getArea());
                 dto.setIdioma(request.getIdioma());
-                dto.setMoneda(request.getMoneda());
+                //dto.setMoneda(request.getMoneda());
                 dto.setDominioTld(request.getDominioTld());
                 dto.setHusoHorario(request.getHusoHorario());
                 dto.setContinente(request.getContinente());
@@ -318,6 +370,46 @@ public class PaisServiceImpl implements PaisService {
                 dto.setCreatedAt(LocalDateTime.now());
                 Pais entity = mapToEntity(dto);
                 Pais savedEntity = repository.save(entity);
+
+                // Sí vino monedaId, crear la relación en pais_monedas con valores por defecto
+                if (request.getMonedaId() != null) {
+                    //log.info("PaisService-create::Intento guardar moneda");
+
+
+                    // Verificar si el país ya existe como eliminado
+                    Optional<Moneda> moneda = monedaRepository.findById(request.getMonedaId());
+                    if (moneda.isPresent()) {
+                        log.info("PaisService-create::Intento guardar moneda {}", request.getMonedaId());
+                        PaisMoneda pm = new PaisMoneda();
+                        pm.setPais(savedEntity);
+                        pm.setMoneda(moneda.get());
+                        pm.setEsOficial(Boolean.TRUE);
+                        pm.setEsPrimaria(Boolean.TRUE);
+                        pm.setValidoDesde(LocalDate.now());
+                        paisMonedaRepository.save(pm);
+
+                    }
+
+                    /*
+                    Moneda moneda = monedaRepository.findById(request.getMonedaId())
+                            .orElseThrow(() -> new EntityNotFoundException("Moneda no encontrada id=" + request.getMonedaId()));
+                    // comprobar si ya existe (evitar duplicados)
+                    boolean exists = paisMonedaRepository.exists(Example.of(new PaisMoneda() {{
+                        setPais(savedEntity);
+                        setMoneda(moneda);
+                    }}));
+
+                    if (!exists) {
+                        PaisMoneda pm = new PaisMoneda();
+                        pm.setPais(savedEntity);
+                        pm.setMoneda(moneda);
+                        pm.setEsOficial(Boolean.TRUE);
+                        pm.setEsPrimaria(Boolean.TRUE);
+                        pm.setValidoDesde(LocalDate.now());
+                        paisMonedaRepository.save(pm);
+                    }
+                    */
+                }
 
                 // Registrar auditoría, registrar el evento de creación.
                 Auditoria auditoria = new Auditoria();
@@ -366,12 +458,17 @@ public class PaisServiceImpl implements PaisService {
             optional.get().setPoblacion(dto.getPoblacion());
             optional.get().setArea(dto.getArea());
             optional.get().setIdioma(dto.getIdioma());
-            optional.get().setMoneda(dto.getMoneda());
+            //optional.get().setMoneda(dto.getMoneda());
+
             optional.get().setDominioTld(dto.getDominioTld());
             optional.get().setHusoHorario(dto.getHusoHorario());
             optional.get().setContinente(dto.getContinente());
             optional.get().setUpdatedBy("system");
             optional.get().setUpdatedAt(LocalDateTime.now());
+
+            /**/
+            Pais updatedEntity = repository.save(optional.get());
+            /**/
 
             // Registrar auditoría, registrar el evento de actualización.
             Auditoria auditoria = new Auditoria();
@@ -382,6 +479,46 @@ public class PaisServiceImpl implements PaisService {
             auditoria.setTimestamp(LocalDateTime.now());
             auditoria.setDetails("Actualización de un país existente");
             auditoriaRepository.save(auditoria);
+
+
+
+
+            //// Sí vino monedaId, actualizar la relación en pais_monedas con valores actualizados
+            if (dto.getMonedaId() != null) {
+            //    PaisMonedaResponseDTO paisMonedaResponseDTO = paisMonedaService.findByPaisIdAndMonedaId(id, dto.getMonedaId());
+            //    if (paisMonedaResponseDTO != null) {
+            //        //PARA PODER ACTUALIZAR MI PAISMONEDA, DEBO TENER PAISMONEDAID
+            //        // Y PAISMONEDAUPDATEDTO(PaisDTO, MonedaDTO)
+            //        //paisMonedaResponseDTO.getId()  = idPaisMoneda
+            //        //paisMonedaResponseDTO.getPais().getId()
+            //        PaisDTO paisDTO = getAll(paisMonedaResponseDTO.getPais().getId());
+            //        MonedaDTO monedaDTO = monedaService.getAll( paisMonedaResponseDTO.getMoneda().getId() );
+            //        PaisMonedaUpdateDTO paisMonedaUpdateDTO = new PaisMonedaUpdateDTO();
+            //        paisMonedaUpdateDTO.setId(paisMonedaResponseDTO.getId());
+            //        paisMonedaUpdateDTO.setPais(paisDTO);
+            //        paisMonedaUpdateDTO.setMoneda(monedaDTO);
+            //        //PaisMonedaResponseDTO paisMonedaUpdated = new PaisMonedaResponseDTO();
+            //        //paisMonedaUpdated =
+            //        paisMonedaService.update(paisMonedaResponseDTO.getId(), paisMonedaUpdateDTO);
+            //    }
+
+                // Verificar
+                Optional<Moneda> moneda = monedaRepository.findById(dto.getMonedaId());
+                if (moneda.isPresent()) {
+                    log.info("PaisService-create::Intento actualizar moneda {}", dto.getMonedaId());
+                    PaisMoneda pm = new PaisMoneda();
+                    pm.setId(updatedEntity.getId());
+                    pm.setPais(updatedEntity);
+                    pm.setMoneda(moneda.get());
+                    //pm.setEsOficial(Boolean.TRUE);
+                    //pm.setEsPrimaria(Boolean.TRUE);
+                    //pm.setValidoDesde(LocalDate.now());
+                    paisMonedaRepository.save(pm);
+
+
+                }
+            }
+
 
             log.info("PaisService-update::Acción completada sin errores");
             return mapToResponseDTO(repository.save(optional.get()));

@@ -26,6 +26,17 @@ import BarrioCreatePage from "./pages/barrios/BarrioCreatePage";
 import BarrioDetailPage from "./pages/barrios/BarrioDetailPage";
 import BarrioEditPage from "./pages/barrios/BarrioEditPage";
 
+/* 
+  Tip para modificar fácil:
+  -------------------------
+  * Si querés agregar una nueva sección, solo hacés 3 pasos:
+  1. Crear un nuevo archivo en pages/, por ejemplo ReportsPage.jsx.
+  2. Agregar la ruta:
+  import ReportsPage from "./pages/ReportsPage";
+  <Route path="/reports" element={<ReportsPage />} />
+  3. Agregar el enlace en Sidebar.
+*/
+
 // Componente principal de la aplicación
 function App() {
   return (
@@ -48,13 +59,13 @@ function App() {
 
       {/* Sistema de rutas: cada path carga una página específica */}
       <Routes>
+        
         {/* Página principal o dashboard general */}
         <Route path="/" element={<OverViewPage />} />
 
         {/* Página de productos */}
         <Route path="/products" element={<ProductsPage />} />
 
-        
         {/* Páginas de pais */}
         <Route path="/paises" element={<PaisListPage />} />
         <Route path="/paises/nuevo" element={<PaisCreatePage />} />
@@ -95,21 +106,5 @@ function App() {
     </div>
   )
 }
-
-/* 
-Tip para modificar fácil:
--------------------------
-
-* Si querés agregar una nueva sección, solo hacés 3 pasos:
-
-1. Crear un nuevo archivo en pages/, por ejemplo ReportsPage.jsx.
-
-2. Agregar la ruta:
-
-import ReportsPage from "./pages/ReportsPage";
-<Route path="/reports" element={<ReportsPage />} />
-
-3. Agregar el enlace en Sidebar.
-*/
 
 export default App;

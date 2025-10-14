@@ -30,58 +30,80 @@ const PaisEditPage = () => {
     // Lista de monedas desde backend
     const [monedas, setMonedas] = useState([]);
 
-    //  PaisMonedas desde backend
-    const [paisMonedas, setPaisMonedas] = useState([]);
+
     
-    /*
+
+    // ❗ Estado para guardar los errores del formulario, clave: nombre del campo.
+    // Guarda mensajes de error específicos para cada campo del formulario.
+    const [errors, setErrors] = useState({});
+
+    // Estado para indicar si se está realizando una operación (como guardar)
+    // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
+    const [loading, setLoading] = useState(false);
+
+
     // 📡 Cargar datos actuales del país al montar el componente
     useEffect(() => {
+
         let mounted = true;
 
         // cargar monedas
         axios.get('/monedas')
             .then(res => { 
                 if (mounted) setMonedas(res.data || []);
-                console.log('Se cargaron monedas' + res.data)
+                
             })
             .catch(err => {
                 console.error('No se pudieron cargar monedas', err);
-        });
-
-        // cargar pais-monedas
-        let esPrimaria = true;
-        axios.get(`/pais-monedas/${id}/${esPrimaria}`)
-            .then(res => { 
-                if (mounted) setPaisMonedas(res.data || []);
-                console.log('Se cargo pais-monedas' + res.data)
-            })
-            .catch(err => {
-                console.error('No se pudo cargar pais-monedas', err);
-        });
+            });
 
         // cargar pais
         axios.get(`/paises/${id}`)
             .then(res => {
-                console.log("Iniciando busqueda de pais con ID " + id);
+                
+                //// Limpiar valores nulos y convertirlos en cadenas vacías
+                //const sanitized = Object.fromEntries(
+                //    Object.entries(res.data).map(([key, value]) => [key, value ?? ''])
+                //);
+                //setForm(sanitized);
 
                 if (!mounted) return;
                 const data = res.data || {};
 
-                console.log("data "+data)
+                // MAPEAR explícitamente SOLO los campos que quieres usar en el form
+                // Así evitamos sobrescribir con objetos complejos (p.ej. paisMonedas)
+                const mapped = {
+                    name: data.name ?? '',
+                    codigoIso2: data.codigoIso2 ?? '',
+                    codigoIso3: data.codigoIso3 ?? '',
+                    capital: data.capital ?? '',
+                    poblacion: data.poblacion ?? '',
+                    area: data.area ?? '',
+                    idioma: data.idioma ?? '',
+                    dominioTld: data.dominio_tld ?? data.dominioTld ?? '',
+                    husoHorario: data.huso_horario ?? data.husoHorario ?? '',
+                    continente: data.continente ?? 'SIN_ESPECIFICAR',
+                    banderaUrl: data.banderaUrl ?? data.bandera_url ?? '' // ajusta según tu API
+                };
 
-                // Limpiar valores nulos y convertirlos en cadenas vacías
-                const sanitized = Object.fromEntries(
-                    //Object.entries(res.data).map(([key, value]) => [key, value ?? ''])
-                    Object.entries(data).map(([key, value]) => [key, value ?? ''])
-                );
-                //setForm(sanitized);//ORIGINALMENTE NO ESTABA COMENTADO...
-
+                // detecta moneda por defecto: preferimos data.monedaId, sino usamos paisMonedas
                 let monedaId = '';
                 if (data.monedaId) {
-                    //console.log("paisName "+data.name)
-                    //console.log("monedaId "+data.monedaId)
-                    monedaId = data.monedaId;
+                monedaId = String(data.monedaId);
+                } else if (Array.isArray(data.paisMonedas) && data.paisMonedas.length > 0) {
+                const primaria = data.paisMonedas.find(pm => pm.esPrimaria) || data.paisMonedas[0];
+                if (primaria && primaria.moneda) {
+                    monedaId = String(primaria.moneda.id ?? primaria.monedaId ?? '');
                 }
+                }
+
+                setForm(prev => ({ ...prev, ...mapped, monedaId: monedaId || '' }));
+
+                // Limpiar valores nulos y convertirlos en cadenas vacías
+                //const sanitized = Object.fromEntries(
+                //    Object.entries(data).map(([key, value]) => [key, value ?? ''])
+                //);
+
             })
             .catch(err => {
                 console.error("[❌ ERROR] No se pudo obtener datos del país:", err);
@@ -90,8 +112,9 @@ const PaisEditPage = () => {
                     text: 'Ocurrió un error al cargar los datos del país. Por favor, intenta nuevamente.',
                 });
             });
+
+            return () => { mounted = false; };
     }, [id]);
-    */
 
     //  📊 Estado del formulario con los campos del país a modificar.
     // Este estado mantiene los valores que el usuario ingresa en el formulario.
@@ -104,11 +127,12 @@ const PaisEditPage = () => {
         area: '',
         idioma: '',
         //moneda: '',
-        monedaId: '',
+        monedaId: '',     // <-- nuevo: id de la moneda seleccionada
         dominioTld: '',
         husoHorario: '',
         continente: 'SIN_ESPECIFICAR',
     });
+
 
     // 🌍 Lista de continentes válidos (para el select)
     const CONTINENTES = [
@@ -121,101 +145,6 @@ const PaisEditPage = () => {
         'OCEANIA', 
         'SIN_ESPECIFICAR'
     ];
-
-    /**/
-    // Cargar monedas, pais-monedas y pais en paralelo y preseleccionar moneda
-    useEffect(() => {
-        let mounted = true;
-        const esPrimaria = true; // tal como usaste en la ruta
-
-        Promise.all([
-        axios.get('/monedas'),
-        axios.get(`/pais-monedas/${id}/${esPrimaria}`),
-        axios.get(`/paises/${id}`)
-        ])
-        .then(([monedasResp, paisMonedasResp, paisResp]) => {
-            if (!mounted) return;
-
-            // Normalizar monedas: id -> string (evita mismatch number vs string)
-            const monedasData = (monedasResp.data || []).map(m => ({ ...m, id: String(m.id) }));
-            setMonedas(monedasData);
-
-            // --- PROTECCIÓN: normalizar pais-monedas a array siempre ---
-            let pmDataRaw = paisMonedasResp.data;
-            if (!pmDataRaw) {
-                pmDataRaw = [];
-            } else if (!Array.isArray(pmDataRaw)) {
-                // si vino un objeto único, envolverlo en array
-                pmDataRaw = [pmDataRaw];
-            }
-
-            // Guardar pais-monedas (normalizar ids internos también)
-            /*const pmDataRaw = paisMonedasResp.data || [];
-            const pmData = pmDataRaw.map(pm => ({
-                ...pm,
-                id: pm.id,
-                pais: pm.pais ? { ...pm.pais, id: String(pm.pais.id) } : null,
-                moneda: pm.moneda ? { ...pm.moneda, id: String(pm.moneda.id) } : null,
-                esOficial: pm.esOficial,
-                esPrimaria: pm.esPrimaria
-            }));
-            setPaisMonedas(pmData);*/
-            // ahora pmDataRaw es definitivamente un array
-            const pmData = pmDataRaw.map(pm => ({
-            ...pm,
-            id: pm.id,
-            pais: pm.pais ? { ...pm.pais, id: String(pm.pais.id) } : null,
-            moneda: pm.moneda ? { ...pm.moneda, id: String(pm.moneda.id) } : null,
-            esOficial: pm.esOficial,
-            esPrimaria: pm.esPrimaria
-            }));
-            setPaisMonedas(pmData);
-
-            // Mapear el país (solo campos simples para el form)
-            const data = paisResp.data || {};
-            const mapped = {
-                name: data.name ?? '',
-                codigoIso2: data.codigoIso2 ?? '',
-                codigoIso3: data.codigoIso3 ?? '',
-                capital: data.capital ?? '',
-                poblacion: data.poblacion ?? '',
-                area: data.area ?? '',
-                idioma: data.idioma ?? '',
-                dominioTld: data.dominio_tld ?? data.dominioTld ?? '',
-                husoHorario: data.huso_horario ?? data.husoHorario ?? '',
-                continente: data.continente ?? 'SIN_ESPECIFICAR',
-                banderaUrl: data.banderaUrl ?? data.bandera_url ?? ''
-            };
-
-            // Determinar monedaId preseleccionada:
-            // 1) si paisMonedas trae relaciones, preferir esPrimaria=true
-            // 2) si no, fallback a vacío
-            let monedaId = '';
-            if (pmData.length > 0) {
-                const primaria = pmData.find(pm => pm.esPrimaria) || pmData[0];
-                if (primaria && primaria.moneda && primaria.moneda.id) {
-                monedaId = String(primaria.moneda.id);
-                }
-            } else if (data.monedaId !== undefined && data.monedaId !== null) {
-                monedaId = String(data.monedaId);
-            }
-
-            // Validar que monedaId existe en la lista de monedas; si no existe, dejar vacío
-            if (monedaId && !monedasData.some(m => String(m.id) === String(monedaId))) {
-                monedaId = '';
-            }
-
-            setForm(prev => ({ ...prev, ...mapped, monedaId: monedaId || '' }));
-        }).catch(err => {
-            console.error('Error cargando datos iniciales:', err);
-            if (mounted) {
-                setMessage({ type: 'error', text: 'No se pudieron cargar datos iniciales.' });
-            }
-        });
-
-        return () => { mounted = false; };
-    }, [id]);
-    /**/
     
     // 📌 Maneja los cambios en los campos del formulario
     const handleChange = e => {
@@ -223,13 +152,7 @@ const PaisEditPage = () => {
         setForm(prev => ({ ...prev, [name]: value }));
     };
     
-    // ❗ Estado para guardar los errores del formulario, clave: nombre del campo.
-    // Guarda mensajes de error específicos para cada campo del formulario.
-    const [errors, setErrors] = useState({});
-
-    // Estado para indicar si se está realizando una operación (como guardar)
-    // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
-    const [loading, setLoading] = useState(false);
+    
 
     // ✅ Función para validar los campos del formulario antes de enviarlos al servidor.
     // Retorna `true` si todos los campos son válidos, `false` en caso contrario.
@@ -300,10 +223,12 @@ const PaisEditPage = () => {
         //        newErrors.moneda = 'La moneda contiene caracteres inválidos o es muy larga.';
         //    }
         //}
-        // validar que monedaId exista si está seteada
+        // Opcional: validar que monedaId exista en la lista si no está vacío
         if (form.monedaId) {
             const found = monedas.some(m => String(m.id) === String(form.monedaId));
-            if (!found) newErrors.monedaId = 'Moneda seleccionada inválida.';
+            if (!found) {
+                newErrors.monedaId = 'Moneda seleccionada inválida.';
+            }
         }
 
         // Dominio TLD (opcional, pero válida si se ingresa, empieza con punto y sigue con dos letras)
@@ -324,9 +249,10 @@ const PaisEditPage = () => {
         return Object.keys(newErrors).length === 0;
     };
     
-    /*
+
     // 🚀 Maneja el envío del formulario
-    const handleSubmit = e => {
+    //const handleSubmit = e => {
+    const handleSubmit = async (e) => {   
         
         e.preventDefault();
         
@@ -350,12 +276,15 @@ const PaisEditPage = () => {
                 codigoIso3: form.codigoIso3.trim().toUpperCase(),
                 capital: form.capital.trim(),
                 idioma: form.idioma.trim(),
-                moneda: form.moneda.trim(),
+                //moneda: form.moneda.trim(),
+                //monedaId: form.monedaId || null,    // <-- incluir monedaId en el payload
+                monedaId: form.monedaId ? Number(form.monedaId) : null,
                 dominioTld: form.dominioTld.trim().toLowerCase(),
                 husoHorario: form.husoHorario.trim(),
             };
 
-            axios.put(`/paises/${id}`, sanitizedForm);
+            //axios.put(`/paises/${id}`, sanitizedForm);
+            const res = await axios.put(`/paises/${id}`, sanitizedForm);
             setMessage({ 
                 type: 'success', 
                 text: '¡El país se actualizo correctamente!' 
@@ -365,48 +294,15 @@ const PaisEditPage = () => {
             setTimeout(() => navigate(`/paises/${id}`), 1500);
 
         } catch (error) {
+
+            const serverMsg = err?.response?.data?.message || err?.response?.data || null;
+
             console.error('Error en handleSubmit - No se pudo actualizar el país:', error);
             setMessage({ 
                 type: 'error', 
-                text: 'Ocurrió un error al actualizar el país. Intenta nuevamente más tarde.' 
+                //text: 'Ocurrió un error al actualizar el país. Intenta nuevamente más tarde.' 
+                text: serverMsg ? String(serverMsg) : 'Ocurrió un error al actualizar el país. Intenta nuevamente más tarde.'
             });
-        } finally {
-            setLoading(false);
-        }
-    };
-    */
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage({ type: '', text: '' });
-
-        if (!validateForm()) {
-            setMessage({ type: 'error', text: 'Corrige los errores del formulario antes de continuar.' });
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const payload = {
-                name: String(form.name).trim(),
-                codigoIso2: form.codigoIso2 ? String(form.codigoIso2).trim().toUpperCase() : null,
-                codigoIso3: form.codigoIso3 ? String(form.codigoIso3).trim().toUpperCase() : null,
-                capital: form.capital ? String(form.capital).trim() : null,
-                poblacion: form.poblacion ? Number(form.poblacion) : null,
-                area: form.area ? Number(form.area) : null,
-                idioma: form.idioma ? String(form.idioma).trim() : null,
-                dominioTld: form.dominioTld ? String(form.dominioTld).trim().toLowerCase() : null,
-                husoHorario: form.husoHorario ? String(form.husoHorario).trim() : null,
-                continente: form.continente,
-                monedaId: form.monedaId ? Number(form.monedaId) : null
-            };
-
-            await axios.put(`/paises/${id}`, payload);
-            setMessage({ type: 'success', text: '¡El país se actualizó correctamente!' });
-            setTimeout(() => navigate(`/paises/${id}`), 1200);
-        } catch (err) {
-            console.error('Error actualizando país:', err);
-            const serverMsg = err?.response?.data?.message || err?.response?.data || null;
-            setMessage({ type: 'error', text: serverMsg ? String(serverMsg) : 'Ocurrió un error al actualizar el país.' });
         } finally {
             setLoading(false);
         }
@@ -448,7 +344,7 @@ const PaisEditPage = () => {
                                     { name: 'poblacion', label: 'Población', type: 'number', placeholder: 'Ej: 45000000', inputMode: 'numeric', min: 0 },
                                     { name: 'area', label: 'Área (km²)', type: 'number', placeholder: 'Ej: 2780400', inputMode: 'numeric', min: 0 },
                                     { name: 'idioma', label: 'Idioma', placeholder: 'Ej: Español', maxLength: 30 },
-                                    // { name: 'moneda', label: 'Moneda', placeholder: 'Ej: Peso argentino', maxLength: 30 },
+                                    //{ name: 'moneda', label: 'Moneda', placeholder: 'Ej: Peso argentino', maxLength: 30 },
                                     { name: 'dominioTld', label: 'Dominio TLD', placeholder: 'Ej: .ar', pattern: '\\.[a-z]{2,3}', maxLength: 4 },
                                     { name: 'husoHorario', label: 'Huso horario', placeholder: 'Ej: GMT-3', pattern: 'GMT[+-]\\d{1,2}', maxLength: 6 },
                                 ].map(({ name, label, type = 'text', placeholder, maxLength, pattern, inputMode, min }) => (
@@ -472,17 +368,6 @@ const PaisEditPage = () => {
                                     </div>
                                 ))}
 
-                                <div>
-                                    <label className="text-lg font-semibold text-gray-100">Moneda principal</label>
-                                    <select name="monedaId" value={form.monedaId ?? ''} onChange={handleChange}
-                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600">
-                                        <option value="">-- Sin selección --</option>
-                                        {monedas.map(m => <option key={m.id} value={String(m.id)}>{m.name} {m.code ? `(${m.code})` : ''}</option>)}
-                                    </select>
-                                    {errors.monedaId && <p className="text-red-400 text-sm mt-1">{errors.monedaId}</p>}
-                                    <p className="text-sm text-gray-400 mt-1">Selecciona la moneda relacionada por defecto para este país.</p>
-                                </div>
-
                                 {/* 🌍 Selector de continente */}
                                 <div>
                                     <label className="text-lg font-semibold text-gray-100">Continente</label>
@@ -497,6 +382,20 @@ const PaisEditPage = () => {
                                         ))}
                                     </select>
                                 </div>
+
+                                {/* -------------------- NUEVO: select simple de monedas -------------------- */}
+                                <div>
+                                    <label className="text-lg font-semibold text-gray-100">Moneda principal</label>
+                                    <select name="monedaId" value={form.monedaId ?? ''} onChange={handleChange}
+                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600">
+                                        <option value="">-- Sin selección --</option>
+                                        {monedas.map(m => <option key={m.id} value={m.id}>{m.name} {m.code ? `(${m.code})` : ''}</option>)}
+                                    </select>
+                                    {errors.monedaId && <p className="text-red-400 text-sm mt-1">{errors.monedaId}</p>}
+                                    <p className="text-sm text-gray-400 mt-1">Selecciona la moneda relacionada por defecto para este país.</p>
+                                    </div>
+                                {/* ---------------------------------------------------------------------- */}
+
                             </div>
 
                             {/* ✅ Botón de envío */}

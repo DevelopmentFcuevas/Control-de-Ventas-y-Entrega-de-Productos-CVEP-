@@ -6,7 +6,11 @@ import dayjs from 'dayjs';                                  // Para manejar fech
 import toast from "react-hot-toast";
 // 📁 Íconos u otros recursos externos
 import { Search, Pencil, Trash2, Eye } from "lucide-react";	// Íconos
-import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+import { useReactTable, 
+	getCoreRowModel, 
+	getSortedRowModel, 
+	getPaginationRowModel, 
+	flexRender } from '@tanstack/react-table';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';						// Cliente Axios centralizado
 // 🧩 Componentes comunes
@@ -83,15 +87,7 @@ const BarrioTable = () => {
         setFilteredBarrios(filtered);
     };
 
-	/**
-	 * Formatea el nombre del continente:
-	 * - lo convierte todo a minúsculas
-	 * - reemplaza guiones bajos con espacios
-	 * - y luego capitaliza la primera letra de cada palabra.
-	 */
-	/* const formatContinente = (value) => {
-		return value.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-	}; */
+	
 
 	/**
 	 * Maneja la eliminación de un barrio.
@@ -163,7 +159,6 @@ const BarrioTable = () => {
 		},
 		{
 			accessorKey: 'createdAt',
-			/* cell: (info) => <div className='text-sm text-gray-300'>{dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A')}</div>, */
 			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
 			header: 'Fecha Creación',
 		},
@@ -242,18 +237,6 @@ const BarrioTable = () => {
 	/**
 	 * Si hay un error se muéstra al usuario.
 	 */
-	/* if (error) {
-		return (
-			<div className="flex justify-center items-center h-64">
-				<div className="text-center">
-					<p className="text-red-400 text-lg font-medium mb-2">{error}</p>
-					<p className="text-gray-400 text-sm">
-						Por favor, revisa tu conexión o contacta al soporte si el problema persiste.
-					</p>
-				</div>
-			</div>
-		);
-	} */
 	{error && <ErrorMessage message={error} />}
 	
 	return (

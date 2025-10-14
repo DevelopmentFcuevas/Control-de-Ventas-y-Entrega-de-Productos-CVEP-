@@ -6,7 +6,8 @@ import { Combobox } from '@headlessui/react';
 // 📁 Íconos u otros recursos externos
 import { List, Pencil } from "lucide-react";                        // Íconos
 import worldGlobe from '../../assets/world-globe.png';              // Imagen de ejemplo
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, 
+    ChevronUpDownIcon } from '@heroicons/react/20/solid';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';                             // Cliente Axios centralizado
 // 🧩 Componentes comunes
@@ -52,7 +53,7 @@ const DepartamentoEditPage = () => {
         setSelectedPais(pais);
         setFormData(prev => ({
             ...prev,
-            /* pais: { id: pais.id } */
+            
             pais: { id: pais ? pais.id : '' }
         }));
     };
@@ -285,23 +286,6 @@ const DepartamentoEditPage = () => {
                                 </div>
                                 
                                 {/* 🌍 Selector de país */}
-                                {/* <div>
-                                    {errors.pais && <p className="text-red-400 text-sm mt-1">{errors.pais}</p>}
-                                    <label className="text-lg font-semibold text-gray-100">País</label>
-                                    <select
-                                        name="pais.id"
-                                        value={form.pais.id}
-                                        onChange={handleChange}
-                                        className="mt-1 w-full rounded bg-gray-700 text-white p-2"
-                                    >
-                                        <option value="">Seleccione un país</option>
-                                        {paises.map(pais => (
-                                            <option key={pais.id} value={pais.id}>
-                                                {pais.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div> */}
                                 <div>
                                     <label className="text-lg font-semibold text-gray-100">País</label>
                                     <Combobox value={selectedPais || { id: '', name: '' }} onChange={handlePaisSelect}>

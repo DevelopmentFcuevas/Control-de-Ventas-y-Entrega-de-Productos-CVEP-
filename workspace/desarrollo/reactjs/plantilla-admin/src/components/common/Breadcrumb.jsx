@@ -1,9 +1,11 @@
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+// 📦 Librerías externas
+import React from 'react';                              // Importación de React
+import { Link } from 'react-router-dom';                // Navegación interna con React Router
+// 📁 Íconos u otros recursos externos
+import { ChevronRight } from 'lucide-react';            // Importación de íconos desde `lucide-react`, una librería de íconos modernos.
+
 
 const Breadcrumb = ({ items }) => {
-    {/* <nav className="flex text-sm text-gray-400 mb-6" aria-label="Breadcrumb"> */}
     return (
         <nav className="flex text-sm text-gray-400 bg-gradient-to-r from-gray-800 to-gray-700 p-2 rounded-lg shadow mb-6" aria-label="Breadcrumb">
             <ol className="inline-flex flex-wrap items-center space-x-1">

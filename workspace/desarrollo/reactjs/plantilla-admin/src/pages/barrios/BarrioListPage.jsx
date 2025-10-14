@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 import { Home, List } from "lucide-react";                                     // Íconos
 import { Flag, FlagOff, LandPlot, Goal} from 'lucide-react';                   // Íconos para estadísticas
 // 🔧 Servicios (API, helpers, utilidades)
-import { getBarriosPorEstado, getBarriosPorFecha } from '../../services/api';     // Cliente Axios centralizado
+import { getBarriosPorEstado, 
+    getBarriosPorFecha } from '../../services/api';                             // Cliente Axios centralizado
 // 🧩 Componentes comunes
 import Header from '../../components/common/Header';                            // Título de la sección
 import StatCard from '../../components/common/StatCard';                        // Tarjetas de estadísticas
@@ -94,13 +95,6 @@ const BarrioListPage = () => {
                 { label: <><Home className="inline w-4 h-4 mr-1"/> Inicio</>, href: '/' },
                 { label: <><List className="inline w-4 h-4 mr-1"/> Listado</> }
             ]} />
-
-            {/* Mostrar mensaje de error si algo falló */}
-           {/* {error && (
-                <div className="bg-red-100 text-red-800 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
-            )} */}
 
             {/* 🛎️ Mensajes de estado */}
             {error.text && (

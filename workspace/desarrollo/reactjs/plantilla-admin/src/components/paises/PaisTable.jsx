@@ -3,9 +3,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";						// Librería para animaciones
 import { Link } from 'react-router-dom';					// Navegación interna con React Router
 import toast from "react-hot-toast";
+import dayjs from 'dayjs';                                  // Para manejar fechas fácilmente
 // 📁 Íconos u otros recursos externos
 import { Search, Pencil, Trash2, Eye } from "lucide-react";	// Íconos
-import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+import { useReactTable, 
+	getCoreRowModel, 
+	getSortedRowModel, 
+	getPaginationRowModel, 
+	flexRender } from '@tanstack/react-table';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';						// Cliente Axios centralizado
 // 🧩 Componentes comunes
@@ -52,8 +57,8 @@ const PaisTable = () => {
 
         axios.get('http://localhost:8080/api/paises')
             .then(response => {
-                setRecords(response.data); // Guarda todos los países en estado original
-                setFilteredPaises(response.data); // Inicializa la tabla con todos los países
+                setRecords(response.data); 			// Guarda todos los países en estado original
+                setFilteredPaises(response.data); 	// Inicializa la tabla con todos los países
             })
             .catch(error => {
                 console.error('Error al obtener los datos:', error);
@@ -144,6 +149,41 @@ const PaisTable = () => {
 			cell: (info) => (<div className='text-sm text-gray-300'>{info.getValue()}</div>),
 		},
 		{
+			accessorKey: 'capital',
+			header: 'Capital',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'poblacion',
+			header: 'Cant. Población',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'area',
+			header: 'Area(en km²)',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'idioma',
+			header: 'Idioma oficial',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'moneda',
+			header: 'Moneda oficial',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'dominioTld',
+			header: 'Dominio TLD',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
+			accessorKey: 'husoHorario',
+			header: 'Huso Horario',
+			cell: (info) => <div className='text-sm text-gray-300'>{info.getValue()}</div>,
+		},
+		{
 			accessorKey: 'continente',
 			header: 'Continente',
 			cell: (info) => (
@@ -165,6 +205,16 @@ const PaisTable = () => {
 			},
 		},
 		{
+			accessorKey: 'createdAt',
+			header: 'Fecha Creación',
+			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
+		},
+		{
+			accessorKey: 'updatedAt',
+			header: 'Fecha Actualización',
+			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
+		},
+		{
 			id: 'acciones',
 			header: 'Acciones',
 			cell: ({ row }) => {
@@ -174,7 +224,7 @@ const PaisTable = () => {
 					<div className='flex gap-2 text-gray-300'>
 						<Link
 							to={`/paises/${pais.id}`}
-							className='hover:text-blue-400 flex items-center'
+							className='hover:text-amber-400 flex items-center'
 							title="Ver detalles"
 						>
 							<Eye size={18} />
@@ -261,7 +311,7 @@ const PaisTable = () => {
 				<div className='relative'>
 					<input
 						type='text'
-						placeholder='Buscar país...'
+						placeholder='Buscar...'
 						className='bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
 						value={searchTerm}
 						onChange={handleSearch}

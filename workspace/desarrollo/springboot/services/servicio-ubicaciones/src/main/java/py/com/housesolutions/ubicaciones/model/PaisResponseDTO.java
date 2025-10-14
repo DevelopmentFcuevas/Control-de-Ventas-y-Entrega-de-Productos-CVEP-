@@ -17,7 +17,9 @@ public class PaisResponseDTO {
     private Integer poblacion;
     private BigDecimal area;
     private String idioma;
-    private String moneda;
+    //private String moneda;
+    //MonedaResponseDTO moneda;
+
     private String dominioTld;
     private String husoHorario;
     private Continente continente;

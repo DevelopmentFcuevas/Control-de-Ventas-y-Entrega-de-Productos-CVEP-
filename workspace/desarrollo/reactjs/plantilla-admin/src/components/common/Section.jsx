@@ -1,5 +1,8 @@
+// 📦 Librerías externas
 import React from 'react';
-import { motion } from "framer-motion";
+// 📁 Íconos u otros recursos externos
+import { motion } from "framer-motion";         // Librerías para animaciones
+
 
 const Section = ({ icon: Icon, title, children }) => (
     <motion.div

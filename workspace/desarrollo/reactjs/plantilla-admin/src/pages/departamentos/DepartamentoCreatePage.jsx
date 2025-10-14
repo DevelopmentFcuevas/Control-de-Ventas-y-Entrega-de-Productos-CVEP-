@@ -78,8 +78,18 @@ const DepartamentoCreatePage = () => {
                 pais.name.toLowerCase().includes(query.toLowerCase())
             );
     const handlePaisSelect = (pais) => {
+        //setSelectedPais(pais);
+        //setForm({ ...form, pais: { id: pais.id } });
+
+        if (!pais) {
+            setSelectedPais(null);
+            setForm({ ...form, pais: { id: '' } });
+            return;
+        }
+
         setSelectedPais(pais);
         setForm({ ...form, pais: { id: pais.id } });
+
     };
     
     // 📌 Maneja los cambios en los campos del formulario
@@ -143,6 +153,11 @@ const DepartamentoCreatePage = () => {
             if (isNaN(superficieNum) || superficieNum < 0 || superficieNum > 20_000_000) {
                 newErrors.area = 'Ingresa un valor de superficie válido (0 - 20 millones km²).';
             }
+        }
+
+        // 🌍 Validar país obligatorio
+        if (!form.pais.id) {
+            newErrors['pais.id'] = 'Debes seleccionar un país válido.';
         }
     
         setErrors(newErrors);
@@ -261,24 +276,6 @@ const DepartamentoCreatePage = () => {
                                 </div>
 
                                 {/* 🌍 Selector de Pais */}
-                                {/* <div>
-                                    <label className="text-sm text-gray-300">País</label>
-                                    <select
-                                        name="pais.id"
-                                        value={form.pais.id}
-                                        onChange={handleChange}
-                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        required
-                                    >
-                                        <option value="">Seleccione un país</option>
-                                        {paises.map((pais) => (
-                                            <option key={pais.id} value={pais.id}>
-                                                {pais.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div> */}
-
                                 <div>
                                     <label className="text-sm text-gray-300">País</label>
                                     <Combobox value={selectedPais} onChange={handlePaisSelect}>
@@ -287,7 +284,14 @@ const DepartamentoCreatePage = () => {
                                                 <Combobox.Input 
                                                     className="w-full border-none py-2 pl-3 pr-10 bg-gray-700 text-white focus:ring-0"
                                                     displayValue={(pais) => pais ? pais.name : ''}
-                                                    onChange={(event) => setQuery(event.target.value)}
+                                                    /* onChange={(event) => setQuery(event.target.value)} */
+                                                    onChange={(event) => {
+                                                        setQuery(event.target.value);
+                                                        if (event.target.value === '') {
+                                                            setSelectedPais(null);
+                                                            setForm({ ...form, pais: { id: '' } });
+                                                        }
+                                                    }}
                                                     placeholder="Buscar país..."
                                                     required
                                                 />
@@ -342,6 +346,9 @@ const DepartamentoCreatePage = () => {
                                         <p className="text-red-400 text-sm mt-1">{errors['pais.id']}</p>
                                     )}
                                 </div>
+                                {errors['pais.id'] && (
+                                    <p className="text-red-400 text-sm mt-1">{errors['pais.id']}</p>
+                                    )}
                             </div>
 
                            {/* ✅ Botón de envío */}

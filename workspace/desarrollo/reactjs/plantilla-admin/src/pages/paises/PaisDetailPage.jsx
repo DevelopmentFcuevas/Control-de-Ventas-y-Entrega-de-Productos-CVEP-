@@ -1,14 +1,15 @@
 // 📦 Librerías externas
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';                   // Navegación interna con React Router
+import dayjs from 'dayjs';                                                   // Para manejar fechas fácilmente
 // 📁 Íconos u otros recursos externos
-import { List, ZoomIn, ArrowLeft } from "lucide-react";                    // Íconos
-import worldGlobe from '../../assets/world-globe.png';          // Imagen de ejemplo
+import { List, ZoomIn, ArrowLeft } from "lucide-react";                     // Íconos
+import worldGlobe from '../../assets/world-globe.png';                      // Imagen de ejemplo
 // 🔧 Servicios (API, helpers, utilidades)
-import axios from '../../services/api';                         // Cliente Axios centralizado
+import axios from '../../services/api';                                     // Cliente Axios centralizado
 // 🧩 Componentes comunes
-import Header from '../../components/common/Header';            // Título de la sección
-import Breadcrumb from '../../components/common/Breadcrumb';    // Migas de pan para la Ruta de navegación
+import Header from '../../components/common/Header';                        // Título de la sección
+import Breadcrumb from '../../components/common/Breadcrumb';                // Migas de pan para la Ruta de navegación
 // Componentes específicos
 
 /*
@@ -101,6 +102,8 @@ const PaisDetailPage = () => {
                             <p><strong>Moneda:</strong> {pais.moneda}</p>
                             <p><strong>Dominio TLD:</strong> {pais.dominioTld}</p>
                             <p><strong>Estado:</strong> {pais.estado}</p>
+                            <p><strong>Fecha Creación:</strong> { pais.createdAt ? dayjs(pais.createdAt).format('DD/MM/YYYY hh:mm:ss A') : '' }</p>
+                            <p><strong>Fecha Actualización:</strong> { pais.updatedAt ? dayjs(pais.updatedAt).format('DD/MM/YYYY hh:mm:ss A') : '' }</p>
                         </div>
 
                         {/* 🖼️🌐 Columna derecha con imagen (bandera o ilustración) */}

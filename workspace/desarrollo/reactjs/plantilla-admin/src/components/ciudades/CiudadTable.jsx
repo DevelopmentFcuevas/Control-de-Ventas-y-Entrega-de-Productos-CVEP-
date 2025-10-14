@@ -3,9 +3,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";						// Librería para animaciones
 import { Link } from 'react-router-dom';					// Navegación interna con React Router
 import toast from "react-hot-toast";
+import dayjs from 'dayjs';                                  // Para manejar fechas fácilmente
 // 📁 Íconos u otros recursos externos
 import { Search, Pencil, Trash2, Eye } from "lucide-react";	// Íconos
-import { useReactTable, getCoreRowModel, getSortedRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+import { useReactTable, 
+	getCoreRowModel, 
+	getSortedRowModel, 
+	getPaginationRowModel, 
+	flexRender } from '@tanstack/react-table';
 // 🔧 Servicios (API, helpers, utilidades)
 import axios from '../../services/api';						// Cliente Axios centralizado
 // 🧩 Componentes comunes
@@ -161,6 +166,16 @@ const CiudadTable = () => {
 			},
 		},
 		{
+			accessorKey: 'createdAt',
+			header: 'Fecha Creación',
+			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
+		},
+		{
+			accessorKey: 'updatedAt',
+			header: 'Fecha Actualización',
+			cell: (info) => <div className='text-sm text-gray-300'>{ info.getValue() ? dayjs(info.getValue()).format('DD/MM/YYYY hh:mm:ss A') : '' }</div>,
+		},
+		{
 			id: 'acciones',
 			header: 'Acciones',
 			cell: ({ row }) => {
@@ -170,7 +185,7 @@ const CiudadTable = () => {
 					<div className='flex gap-2 text-gray-300'>
 						<Link
 							to={`/ciudades/${ciudad.id}`}
-							className='hover:text-blue-400 flex items-center'
+							className='hover:text-amber-400 flex items-center'
 							title="Ver detalles"
 						>
 							<Eye size={18} />

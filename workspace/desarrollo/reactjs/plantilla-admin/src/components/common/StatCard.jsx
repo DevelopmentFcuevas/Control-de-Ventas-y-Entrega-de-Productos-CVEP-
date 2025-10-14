@@ -1,5 +1,16 @@
-import React from 'react';
-import {motion} from "framer-motion";
+// 📦 Librerías externas
+import React from 'react';                // Importación de React
+// 📁 Íconos u otros recursos externos
+import {motion} from "framer-motion";     // Librerías para animaciones
+
+/* 
+🧠 Sugerencias para crecer con este componente:
+------------------------------------------------
+
+* En StatCard podrías agregar una prop onClick para hacerlo interactivo si lo 
+necesitás (por ejemplo, ir a detalles).
+*/
+
 
 // Componente de tarjeta de estadística, muestra un valor destacado con ícono y título.
 // Recibe props:
@@ -31,11 +42,5 @@ const StatCard = ({name, icon:Icon, value, color}) => {
   )
 }
 
-/* 
-🧠 Sugerencias para crecer con este componente:
-------------------------------------------------
 
-* En StatCard podrías agregar una prop onClick para hacerlo interactivo si lo 
-necesitás (por ejemplo, ir a detalles).
-*/
 export default StatCard;

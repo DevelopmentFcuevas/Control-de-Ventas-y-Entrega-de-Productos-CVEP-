@@ -1,3 +1,4 @@
+// 📦 Librerías externas
 import React from 'react';
 
 // Componente Header que recibe una prop "title" y la muestra como título principal de la página
@@ -19,7 +20,6 @@ const Header = ({ title }) => {
 /* 
 🧠 Sugerencias para crecer con este componente:
 ------------------------------------------------
-
 * En Header, podrías incluir botones de acciones (como "Agregar nuevo", "Filtrar", etc.) si lo 
 necesitás más adelante.
 */

@@ -1,5 +1,5 @@
 // 📦 Librerías externas
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';                                     // Navegación interna con React Router
 // 📁 Íconos u otros recursos externos
 import { List, Plus } from "lucide-react";                                          // Íconos
@@ -34,7 +34,8 @@ const PaisCreatePage = () => {
         poblacion: '',
         area: '',
         idioma: '',
-        moneda: '',
+        /* moneda: '', */
+        monedaId: '',
         dominioTld: '',
         husoHorario: '',
         continente: 'SIN_ESPECIFICAR',
@@ -67,6 +68,21 @@ const PaisCreatePage = () => {
     // Estado para indicar si se está realizando una operación (como guardar)
     // Permite deshabilitar el botón mientras se guarda para evitar múltiples envíos.
     const [loading, setLoading] = useState(false);
+    
+
+    // Al inicio del componente
+    const [monedas, setMonedas] = useState([]);
+    useEffect(() => {
+    let mounted = true;
+    axios.get('/monedas')
+        .then(resp => { 
+            if(mounted) setMonedas(resp.data || []); 
+        })
+        .catch(err => { 
+            console.error('Error cargando monedas', err); 
+        });
+        return () => { mounted = false; };
+    }, []);
     
     // ✅ Función para validar los campos del formulario antes de enviarlos al servidor.
     // Retorna `true` si todos los campos son válidos, `false` en caso contrario.
@@ -178,7 +194,8 @@ const PaisCreatePage = () => {
                 codigoIso3: form.codigoIso3.trim().toUpperCase(),
                 capital: form.capital.trim(),
                 idioma: form.idioma.trim(),
-                moneda: form.moneda.trim(),
+                /* moneda: form.moneda.trim(), */
+                monedaId: form.monedaId || null,
                 dominioTld: form.dominioTld.trim().toLowerCase(),
                 husoHorario: form.husoHorario.trim(),
             };
@@ -236,7 +253,7 @@ const PaisCreatePage = () => {
                                     { name: 'poblacion', label: 'Población', type: 'number', placeholder: 'Ej: 45000000', inputMode: 'numeric', min: 0 },
                                     { name: 'area', label: 'Área (km²)', type: 'number', placeholder: 'Ej: 2780400', inputMode: 'numeric', min: 0 },
                                     { name: 'idioma', label: 'Idioma', placeholder: 'Ej: Español', maxLength: 30 },
-                                    { name: 'moneda', label: 'Moneda', placeholder: 'Ej: Peso argentino', maxLength: 30 },
+                                    /* { name: 'moneda', label: 'Moneda', placeholder: 'Ej: Peso argentino', maxLength: 30 }, */
                                     { name: 'dominioTld', label: 'Dominio TLD', placeholder: 'Ej: .ar', pattern: '\\.[a-z]{2,3}', maxLength: 4 },
                                     { name: 'husoHorario', label: 'Huso horario', placeholder: 'Ej: GMT-3', pattern: 'GMT[+-]\\d{1,2}', maxLength: 6 },
                                 ].map(({ name, label, type = 'text', placeholder, maxLength, pattern, inputMode, min }) => (
@@ -259,6 +276,24 @@ const PaisCreatePage = () => {
                                         )}
                                     </div>
                                 ))}
+
+                                <div>
+                                    <label className="text-lg font-semibold text-gray-100">
+                                        Moneda principal
+                                    </label>
+                                    <select
+                                        name="monedaId"
+                                        value={form.monedaId || ''}
+                                        onChange={handleChange}
+                                        className="mt-1 w-full rounded-md bg-gray-700 text-white p-2 border border-gray-600"
+                                    >
+                                        <option value="">-- Selecciona --</option>
+                                        {monedas.map(m => (
+                                            <option key={m.id} value={m.id}>{m.name} ({m.code})</option>
+                                        ))}
+                                    </select>
+                                    {errors.monedaId && <p className="text-red-400 text-sm mt-1">{errors.monedaId}</p>}
+                                </div>
 
                                 {/* 🌍 Selector de continente */}
                                 <div>

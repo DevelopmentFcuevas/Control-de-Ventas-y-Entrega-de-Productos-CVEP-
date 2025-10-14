@@ -49,7 +49,6 @@ const PaisListPage = () => {
                 // Validamos los datos esperados
                 if (typeof activosRes.data !== 'number' || typeof inactivosRes.data !== 'number') {
                     console.error("[ESTADÍSTICAS] Respuesta no válida del servidor:", { activosRes, inactivosRes });
-                    //throw new Error("Los datos de países activos o inactivos no son numéricos.");
                     setMessage({ 
                         type: 'error', 
                         text: 'Los datos de países activos o inactivos no son numéricos.' 
@@ -71,7 +70,6 @@ const PaisListPage = () => {
                 });
             } catch (error) {
                 console.error("[ESTADÍSTICAS] Error al obtener estadísticas:", error);
-                //setError("Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.");
                 setMessage({ 
                     type: 'error', 
                     text: 'Hubo un problema al cargar las estadísticas de Países. Por favor, intenta nuevamente más tarde.' 
@@ -94,20 +92,11 @@ const PaisListPage = () => {
 
             {/* 🧷 Breadcrumb(Migas de pan para la Ruta de navegación) */}
             <Breadcrumb items={[
-                /* { label: 'Overview', href: '/' },
-                { label: 'Listado de paises' } */
                 { label: <><Home className="inline w-4 h-4 mr-1"/> Inicio</>, href: '/' },
                 { label: <><List className="inline w-4 h-4 mr-1"/> Listado</> }
             ]} />
 
-            {/* Mostrar mensaje de error si algo falló */}
-           {/* {error && (
-                <div className="bg-red-100 text-red-800 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
-            )} */}
-
-            {/* 🛎️ Mensajes de estado */}
+            {/* 🛎️ Mensajes de estado, mostrar mensaje de error si algo falló */}
             {error.text && (
                 <div className="bg-red-100 text-red-800 px-4 py-3 rounded mb-4">
                     {error.text}
@@ -136,7 +125,7 @@ const PaisListPage = () => {
                         to="/paises/nuevo"
                         className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     >
-                        + Agregar País
+                        + Agregar
                     </Link>
                 </div>
 

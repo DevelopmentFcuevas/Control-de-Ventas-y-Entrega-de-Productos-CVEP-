@@ -1,3 +1,4 @@
+// 📦 Librerías externas
 import React from 'react';
 
 const ErrorMessage = ({ message }) => (

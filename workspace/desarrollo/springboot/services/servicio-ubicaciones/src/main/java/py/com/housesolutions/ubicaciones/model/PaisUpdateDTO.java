@@ -24,7 +24,9 @@ public class PaisUpdateDTO {
     private Integer poblacion;
     private BigDecimal area = BigDecimal.ZERO;
     private String idioma;
-    private String moneda;
+    //private String moneda;
+    private Long monedaId;
+
     private String dominioTld;
     private String husoHorario;
     private Continente continente = Continente.SIN_ESPECIFICAR;

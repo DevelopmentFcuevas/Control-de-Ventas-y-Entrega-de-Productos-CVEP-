@@ -3,25 +3,19 @@ package py.com.housesolutions.ubicaciones.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class PaisDTO {
+public class PaisMonedaDTO {
     private Long id;
-    private String name;
-    private String codigoIso2;
-    private String codigoIso3;
-    private String capital;
-    private Integer poblacion;
-    private BigDecimal area;
-    private String idioma;
-    //private String moneda;
-    private Long monedaId;
-    private String dominioTld;
-    private String husoHorario;
-    private Continente continente;
+    PaisDTO pais;
+    MonedaDTO moneda;
+    private Boolean esOficial;
+    private Boolean esPrimaria;
+    private LocalDate validoDesde;
+    private LocalDate validoHasta;
     private Estado estado;
     private String createdBy;
     private LocalDateTime createdAt;

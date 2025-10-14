@@ -351,6 +351,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
 
             PaisDTO paisDTO = getPaisById(dto.getPais().getId());
             optional.get().setPais( paisService.mapToEntity(paisDTO) );
+
             optional.get().setName(dto.getName());
             optional.get().setCodigoIso(dto.getCodigoIso());
             optional.get().setCapital(dto.getCapital());

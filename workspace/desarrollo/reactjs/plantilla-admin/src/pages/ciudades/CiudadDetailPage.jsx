@@ -1,6 +1,7 @@
 // 📦 Librerías externas
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';                   // Navegación interna con React Router
+import { useParams, useNavigate } from 'react-router-dom';                  // Navegación interna con React Router
+import dayjs from 'dayjs';                                                  // Para manejar fechas fácilmente
 // 📁 Íconos u otros recursos externos
 import { List, ZoomIn, ArrowLeft } from "lucide-react";                     // Íconos
 import worldGlobe from '../../assets/world-globe.png';                      // Imagen de ejemplo
@@ -97,7 +98,8 @@ const CiudadDetailPage = () => {
                             <p><strong>Departamento:</strong> {ciudad.departamento?.name || 'No especificado'}</p>
                             <p><strong>País:</strong> {ciudad.departamento.pais?.name || 'No especificado'}</p>
                             <p><strong>Estado:</strong> {ciudad.estado}</p>
-                            <p><strong>Fecha de Creación:</strong> {ciudad.createdAt}</p>
+                            <p><strong>Fecha Creación:</strong> { ciudad.createdAt ? dayjs(ciudad.createdAt).format('DD/MM/YYYY hh:mm:ss A') : '' }</p>
+                            <p><strong>Fecha Actualización:</strong> { ciudad.updatedAt ? dayjs(ciudad.updatedAt).format('DD/MM/YYYY hh:mm:ss A') : '' }</p>
                         </div>
 
                         {/* 🖼️🌐 Columna derecha con imagen (bandera o ilustración) */}

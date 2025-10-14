@@ -1,30 +1,45 @@
-// Importación de React y hooks
-import React, { useState } from 'react';
-
-// Importación de íconos desde `lucide-react`, una librería de íconos modernos.
-import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp, Flag, MapPin } from 'lucide-react';
-
-// Librerías para animaciones (animación de transición del sidebar y textos)
-import { AnimatePresence, motion } from 'framer-motion';
-
-// Navegación interna con React Router
-import { Link } from 'react-router-dom';
+// 📦 Librerías externas
+import React, { useState } from 'react';                    // Importación de React y hooks
+import { Link } from 'react-router-dom';                    // Navegación interna con React Router
+// 📁 Íconos u otros recursos externos
+import { BarChart2, 
+    DollarSign, 
+    Menu, 
+    Settings, 
+    ShoppingBag, 
+    ShoppingCart, 
+    TrendingUp, 
+    Flag, 
+    MapPin, 
+    Globe,
+    Building,
+    MapPinHouse } from 'lucide-react';                           // Importación de íconos desde `lucide-react`, una librería de íconos modernos.
+import { AnimatePresence, motion } from 'framer-motion';    // Librerías para animaciones (animación de transición del sidebar y textos)
 
 /* 
-  Lista de elementos que van en el sidebar (menú lateral),
-  cada uno con:
-  - nombre visible
-  - ícono
-  - color del ícono
-  - ruta de navegación (href)
+🧠 Consejos extra:
+-------------------
+* Si querés resaltar el ítem actual, podés usar useLocation() de react-router-dom y compararlo con item.href .
+* Podrías extraer cada SidebarItem como un componente propio si el código crece.
+* Si en un futuro sumás autenticación o roles, podés filtrar los SIDEBAR_ITEMS según permisos del usuario.
+*/
+
+
+/* 
+    Lista de elementos que van en el sidebar (menú lateral),
+    cada uno con:
+    - nombre visible
+    - ícono
+    - color del ícono
+    - ruta de navegación (href)
 */
 const SIDEBAR_ITEMS = [
     { name:"Overview", icon:BarChart2, color:"#6366f1", href:"/" },
     { name:"Products", icon:ShoppingBag, color:"#8B5CF6", href:"/products" },
-    { name:"Paises", icon:Flag, color:"#EC4899", href:"/paises" },
+    { name:"Paises", icon:Globe, color:"#EC4899", href:"/paises" },
     { name:"Departamentos", icon:MapPin, color:"#EC4899", href:"/departamentos" },
-    { name:"Ciudades", icon:MapPin, color:"#EC4899", href:"/ciudades" },
-    { name:"Barrios", icon:MapPin, color:"#EC4899", href:"/barrios" },
+    { name:"Ciudades", icon:Building, color:"#EC4899", href:"/ciudades" },
+    { name:"Barrios", icon:MapPinHouse, color:"#EC4899", href:"/barrios" },
     { name:"Sales", icon:DollarSign, color:"#10B981", href:"/sales" },
     { name:"Orders", icon:ShoppingCart, color:"#F59E0B", href:"/orders" },
     { name:"Analytics", icon:TrendingUp, color:"#3B82F6", href:"/analytics" },
@@ -64,6 +79,7 @@ const Sidebar = () => {
                     {SIDEBAR_ITEMS.map( (item, index) => (
                         <Link key={item.href} to={item.href}>
                             <motion.div className='flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2'>
+                                
                                 {/* Ícono del ítem con color personalizado */}
                                 <item.icon size={20} style={{ color:item.color, minWidth:"20px" }} />
                                 
@@ -84,21 +100,10 @@ const Sidebar = () => {
                             </motion.div>
                         </Link>
                     ))}
-
                 </nav>
             </div>
         </motion.div>
     )
 }
 
-/* 
-🧠 Consejos extra:
--------------------
-
-* Si querés resaltar el ítem actual, podés usar useLocation() de react-router-dom y compararlo con item.href .
-
-* Podrías extraer cada SidebarItem como un componente propio si el código crece.
-
-* Si en un futuro sumás autenticación o roles, podés filtrar los SIDEBAR_ITEMS según permisos del usuario.
-*/
 export default Sidebar;
