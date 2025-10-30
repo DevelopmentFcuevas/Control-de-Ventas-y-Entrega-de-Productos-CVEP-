@@ -33,6 +33,7 @@ public interface PaisMonedaService {
     PaisMonedaResponseDTO getByPaisIdAndEsPrimaria(Long paisId, Boolean esPrimaria) throws Exception;
     PaisMonedaResponseDTO create(PaisMonedaCreateDTO request) throws Exception;
     PaisMonedaResponseDTO update(Long id, PaisMonedaUpdateDTO dto) throws Exception;
+    //PaisMonedaResponseDTO registrarPrimerPaisMoneda(Long paisId, Long monedaId) throws Exception;
 
     PaisMonedaResponseDTO findByPaisIdAndMonedaId(Long paisId, Long monedaId) throws Exception;
 }

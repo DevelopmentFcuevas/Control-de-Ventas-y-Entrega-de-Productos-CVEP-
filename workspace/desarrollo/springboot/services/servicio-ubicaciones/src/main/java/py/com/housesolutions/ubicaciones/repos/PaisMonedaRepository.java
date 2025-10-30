@@ -28,21 +28,18 @@ public interface PaisMonedaRepository extends JpaRepository<PaisMoneda, Long> {
 
     Optional<PaisMoneda> findByPais_IdAndMoneda_Id(Long paisId, Long monedaId);
 
+    List<PaisMoneda> findByPais_Id(Long paisId);
 
-
-    //@Query("SELECT pm FROM PaisMoneda pm WHERE pm.pais = :paisId AND pm.esPrimaria = :esPrimaria AND pm.deleted = false")
-    //Optional<PaisMoneda> findByPaisIdAndEsPrimaria(@Param("paisId") Long paisId, @Param("esPrimaria") Boolean esPrimaria);
-
-
+    @Query("SELECT pm FROM PaisMoneda pm WHERE pm.pais.id = :paisId AND pm.deleted = false")
+    List<PaisMoneda> findAllByPais_IdAndNotDeleted(Long paisId);
     /**/
 
-
+    /*
     boolean existsByPaisAndMoneda(Pais pais, Moneda moneda);
     Optional<PaisMoneda> findByPaisAndMoneda(Pais pais, Moneda moneda);
     List<PaisMoneda> findByPaisId(Long paisId);
     List<PaisMoneda> findByMonedaId(Long monedaId);
     void deleteByPaisAndMoneda(Pais pais, Moneda moneda);
     //Optional<PaisMoneda> findByPaisIdAndEsPrimaria(Long paisId, Boolean esPrimaria);
-
-
+    */
 }

@@ -16,6 +16,7 @@ import py.com.housesolutions.ubicaciones.service.PaisMonedaService;
 import py.com.housesolutions.ubicaciones.service.PaisService;
 import py.com.housesolutions.ubicaciones.util.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -451,6 +452,27 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
         }
     }
 
+    //@Override
+    //public PaisMonedaResponseDTO registrarPrimerPaisMoneda(Long paisId, Long monedaId) throws Exception {
+        //try {
+            //intentar
+            //log.info("PaisMonedaService-registrarPrimerPaisMoneda::Iniciando Servicio para guardar primera relación de Pais Moneda");
+            //PaisDTO paisDTO = paisService.getAll(paisId);
+            //MonedaDTO monedaDTO = monedaService.getAll(monedaId);
+            //PaisMonedaCreateDTO paisMonedaCreateDTO = new PaisMonedaCreateDTO();
+            //paisMonedaCreateDTO.setPais(paisDTO);
+            //paisMonedaCreateDTO.setMoneda(monedaDTO);
+            //paisMonedaCreateDTO.setValidoDesde(LocalDate.now());
+
+            // Reutilizar el método create para persistir la primera relacion Pais-Moneda
+            //log.info("PaisMonedaService-registrarPrimerPaisMoneda::Relación Pais-Moneda registrada correctamente");
+            //return create(paisMonedaCreateDTO);
+        //} catch (Exception e) {
+            //capturar, la raridad
+            //log.error("PaisMonedaService-registrarPrimerPaisMoneda-Exception::Error en el Service al intentar persistir el País-Moneda", e);
+            //throw new Exception("Error al intentar guardar en la base de datos el nuevo registro de País-Moneda. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
+        //}
+    //}
 
 
     // Busca un PaísMoneda activo por IdPais y IdMoneda.
