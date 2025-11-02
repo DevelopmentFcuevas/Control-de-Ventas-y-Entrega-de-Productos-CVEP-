@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaisMonedaRepository extends JpaRepository<PaisMoneda, Long> {
-
-    /**/
     @Query("SELECT pm FROM PaisMoneda pm WHERE pm.deleted = false")
     List<PaisMoneda> findAllActive();
 
@@ -32,14 +30,4 @@ public interface PaisMonedaRepository extends JpaRepository<PaisMoneda, Long> {
 
     @Query("SELECT pm FROM PaisMoneda pm WHERE pm.pais.id = :paisId AND pm.deleted = false")
     List<PaisMoneda> findAllByPais_IdAndNotDeleted(Long paisId);
-    /**/
-
-    /*
-    boolean existsByPaisAndMoneda(Pais pais, Moneda moneda);
-    Optional<PaisMoneda> findByPaisAndMoneda(Pais pais, Moneda moneda);
-    List<PaisMoneda> findByPaisId(Long paisId);
-    List<PaisMoneda> findByMonedaId(Long monedaId);
-    void deleteByPaisAndMoneda(Pais pais, Moneda moneda);
-    //Optional<PaisMoneda> findByPaisIdAndEsPrimaria(Long paisId, Boolean esPrimaria);
-    */
 }

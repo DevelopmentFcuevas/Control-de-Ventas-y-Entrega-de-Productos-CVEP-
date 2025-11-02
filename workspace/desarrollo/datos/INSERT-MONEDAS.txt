@@ -1,0 +1,5 @@
+insert into ubicaciones.monedas (name, code, simbolo ) values('Guaraní', 'PYG', '₲');
+insert into ubicaciones.monedas (name, code, simbolo ) values('Dollar', 'USD', '$');
+insert into ubicaciones.monedas (name, code, simbolo ) values('Euro', 'EU', '€');
+insert into ubicaciones.monedas (name, code, simbolo ) values('Real', 'RL', 'R$');
+
