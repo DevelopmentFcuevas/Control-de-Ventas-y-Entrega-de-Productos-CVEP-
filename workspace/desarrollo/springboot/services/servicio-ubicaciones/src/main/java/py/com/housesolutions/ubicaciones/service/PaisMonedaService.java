@@ -28,12 +28,14 @@ public interface PaisMonedaService {
     PaisMonedaResponseDTO mapToResponseDTO(PaisMoneda entity);
     PaisMoneda mapToEntity(final PaisMonedaDTO dto);
     List<PaisMonedaResponseDTO> findAll() throws Exception;
-    PaisMonedaResponseDTO get(Long id) throws Exception;
+    //PaisMonedaResponseDTO get(Long id) throws Exception;
     PaisMonedaDTO getAll(Long id) throws Exception;
     PaisMonedaResponseDTO getByPaisIdAndEsPrimaria(Long paisId, Boolean esPrimaria) throws Exception;
-    PaisMonedaResponseDTO create(PaisMonedaCreateDTO request) throws Exception;
-    PaisMonedaResponseDTO update(Long id, PaisMonedaUpdateDTO dto) throws Exception;
-    //PaisMonedaResponseDTO registrarPrimerPaisMoneda(Long paisId, Long monedaId) throws Exception;
+    //PaisMonedaResponseDTO create(PaisMonedaCreateDTO request) throws Exception;
+    //PaisMonedaResponseDTO update(Long id, PaisMonedaUpdateDTO dto) throws Exception;
+    PaisMonedaResponseDTO registrarPrimerPaisMoneda(Long paisId, Long monedaId) throws Exception;
+    void marcarRelacionesInactivasPorPais(Long paisId) throws Exception;
+    void actualizarMonedaPrincipal(Long paisId, Long nuevaMonedaId, String user) throws Exception;
 
     PaisMonedaResponseDTO findByPaisIdAndMonedaId(Long paisId, Long monedaId) throws Exception;
 }

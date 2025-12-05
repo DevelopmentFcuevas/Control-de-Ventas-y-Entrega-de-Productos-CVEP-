@@ -29,15 +29,37 @@ const PaisDetailPage = () => {
     const [error, setError] = useState(null);
 
     // 📡 Petición para obtener los detalles del país
+    //useEffect(() => {
+    //    axios.get(`/paises/${id}`) // Llama al endpoint correspondiente
+    //        .then(res => setPais(res.data)) // Almacena los datos del país en el estado
+    //        .catch(err => {
+    //            console.error("Error al obtener país:", err);
+    //            setError("No se pudo cargar la información del país. Intenta nuevamente.");
+    //        }); // Log de error técnico para el desarrollador
+    //}, [id]); // Solo se vuelve a ejecutar si cambia el `id` de la URL
     useEffect(() => {
-        axios.get(`/paises/${id}`) // Llama al endpoint correspondiente
-            .then(res => setPais(res.data)) // Almacena los datos del país en el estado
-            .catch(err => {
-                console.error("Error al obtener país:", err);
-                setError("No se pudo cargar la información del país. Intenta nuevamente.");
-            }); // Log de error técnico para el desarrollador
-    }, [id]); // Solo se vuelve a ejecutar si cambia el `id` de la URL
+        axios.get(`/paises/${id}`)
+            .then(res => {
+                setPais(res.data);
+                
+                // Request para obtener moneda principal
+                return axios.get(`/pais-monedas/${id}/true`);
+            })
+            .then(res => {
+                console.log("Respuesta moneda:", res.data);
 
+                setPais(prev => ({
+                    ...prev,
+                    //moneda: res.data.name
+                    moneda: res.data.moneda?.name || "Sin moneda"
+                }));
+            })
+        .catch(err => setError("Error al obtener datos"));
+    }, [id]);
+    
+    
+    
+    
     // ⏳ Mientras se cargan los datos, mostramos un mensaje simple
     //if (!pais) {
     //    return <div className="text-white">Cargando...</div>;

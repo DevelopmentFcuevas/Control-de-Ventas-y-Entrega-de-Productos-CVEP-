@@ -34,7 +34,6 @@ const PaisCreatePage = () => {
         poblacion: '',
         area: '',
         idioma: '',
-        /* moneda: '', */
         monedaId: '',
         dominioTld: '',
         husoHorario: '',
@@ -194,7 +193,6 @@ const PaisCreatePage = () => {
                 codigoIso3: form.codigoIso3.trim().toUpperCase(),
                 capital: form.capital.trim(),
                 idioma: form.idioma.trim(),
-                /* moneda: form.moneda.trim(), */
                 monedaId: form.monedaId || null,
                 dominioTld: form.dominioTld.trim().toLowerCase(),
                 husoHorario: form.husoHorario.trim(),
@@ -207,11 +205,38 @@ const PaisCreatePage = () => {
             });
             setTimeout(() => navigate('/paises'), 1500);
         } catch (error) {
+            //console.error('Error en handleSubmit - No se pudo crear el país:', error);
+            //setMessage({ 
+            //    type: 'error', 
+            //    text: 'Ocurrió un error al crear el país. Intenta nuevamente más tarde.' 
+            //});
+
             console.error('Error en handleSubmit - No se pudo crear el país:', error);
-            setMessage({ 
-                type: 'error', 
-                text: 'Ocurrió un error al crear el país. Intenta nuevamente más tarde.' 
-            });
+            if (error.response) {
+                // El backend respondió con un código 4xx o 5xx
+                //const backendMessage = error.response.data?.message || 'Error desconocido desde el servidor.';
+                const backendMessage = 
+                    typeof error.response.data === 'string'
+                        ? error.response.data
+                        : error.response.data?.message || 'Error desconocido desde el servidor.';
+                setMessage({ 
+                    type: 'error', 
+                    text: backendMessage 
+                });
+            } else if (error.request) {
+                // No hubo respuesta del servidor
+                setMessage({ 
+                    type: 'error', 
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión.' 
+                });
+            } else {
+                // Error al configurar la solicitud
+                setMessage({ 
+                    type: 'error', 
+                    text: 'Error interno al procesar la solicitud.' 
+                });
+            }
+
         } finally {
             setLoading(false);
         }
@@ -253,7 +278,6 @@ const PaisCreatePage = () => {
                                     { name: 'poblacion', label: 'Población', type: 'number', placeholder: 'Ej: 45000000', inputMode: 'numeric', min: 0 },
                                     { name: 'area', label: 'Área (km²)', type: 'number', placeholder: 'Ej: 2780400', inputMode: 'numeric', min: 0 },
                                     { name: 'idioma', label: 'Idioma', placeholder: 'Ej: Español', maxLength: 30 },
-                                    /* { name: 'moneda', label: 'Moneda', placeholder: 'Ej: Peso argentino', maxLength: 30 }, */
                                     { name: 'dominioTld', label: 'Dominio TLD', placeholder: 'Ej: .ar', pattern: '\\.[a-z]{2,3}', maxLength: 4 },
                                     { name: 'husoHorario', label: 'Huso horario', placeholder: 'Ej: GMT-3', pattern: 'GMT[+-]\\d{1,2}', maxLength: 6 },
                                 ].map(({ name, label, type = 'text', placeholder, maxLength, pattern, inputMode, min }) => (

@@ -62,7 +62,7 @@ public class PaisMonedaResource {
     @GetMapping("/{idPais}/{esPrimaria}")
     public ResponseEntity<?> getByIdPaisAndEsPrimaria(@PathVariable Long idPais, @PathVariable Boolean esPrimaria) throws Exception {
         try {
-            log.info("PaisMonedaResource-getByIdPaisAndEsPrimaria::Obteniendo Pais-Moneda por código identificador: {} y EsPrimaria: {}", idPais, esPrimaria);
+            log.info("PaisMonedaResource-getByIdPaisAndEsPrimaria::Obteniendo Pais-Moneda por código identificador de Pais: {} y EsPrimaria: {}", idPais, esPrimaria);
             PaisMonedaResponseDTO dto = service.getByPaisIdAndEsPrimaria(idPais, esPrimaria);
             return ResponseEntity.ok(dto);
         } catch (MissingParameterException e) {

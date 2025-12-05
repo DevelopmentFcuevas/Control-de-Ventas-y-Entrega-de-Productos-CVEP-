@@ -6,11 +6,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import py.com.housesolutions.ubicaciones.domain.Auditoria;
+import py.com.housesolutions.ubicaciones.domain.Moneda;
 import py.com.housesolutions.ubicaciones.domain.Pais;
 import py.com.housesolutions.ubicaciones.domain.PaisMoneda;
 import py.com.housesolutions.ubicaciones.model.*;
 import py.com.housesolutions.ubicaciones.repos.AuditoriaRepository;
+import py.com.housesolutions.ubicaciones.repos.MonedaRepository;
 import py.com.housesolutions.ubicaciones.repos.PaisMonedaRepository;
+import py.com.housesolutions.ubicaciones.repos.PaisRepository;
+import py.com.housesolutions.ubicaciones.service.AuditoriaService;
 import py.com.housesolutions.ubicaciones.service.MonedaService;
 import py.com.housesolutions.ubicaciones.service.PaisMonedaService;
 import py.com.housesolutions.ubicaciones.service.PaisService;
@@ -27,20 +31,29 @@ import java.util.Optional;
 public class PaisMonedaServiceImpl implements PaisMonedaService {
     private final PaisMonedaRepository repository;
     private final AuditoriaRepository auditoriaRepository;
-    private final PaisService paisService;
+    private final PaisRepository paisRepository;
+    private final MonedaRepository monedaRepository;
+    //private final PaisService paisService;
     private final MonedaService monedaService;
+    private final AuditoriaService auditoriaService;
 
     public PaisMonedaServiceImpl(PaisMonedaRepository repository,
                                  AuditoriaRepository auditoriaRepository,
-                                 PaisService paisService,
-                                 MonedaService monedaService) {
+                                 //PaisService paisService,
+                                 MonedaRepository monedaRepository,
+                                 MonedaService monedaService,
+                                 PaisRepository paisRepository,
+                                 AuditoriaService auditoriaService) {
         this.repository = repository;
         this.auditoriaRepository = auditoriaRepository;
-        this.paisService = paisService;
+        this.paisRepository = paisRepository;
+        this.monedaRepository = monedaRepository;
+        //this.paisService = paisService;
         this.monedaService = monedaService;
+        this.auditoriaService = auditoriaService;
     }
 
-    public PaisDTO getPaisById(Long id) {
+    /*public PaisDTO getPaisById(Long id) {
         PaisDTO paisDTO;
         try {
             log.info("PaisMonedaService-getPaisById::Iniciando Servicio para obtener país por ID");
@@ -51,7 +64,7 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
             log.error("PaisMonedaService-getPaisById::Error en el Service al buscar Pais", e);
             return paisDTO = null;
         }
-    }
+    }*/
 
     public MonedaDTO getMonedaById(Long id) {
         MonedaDTO monedaDTO;
@@ -66,7 +79,7 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
         }
     }
 
-    public PaisResponseDTO getPaisResponseById(Long id) {
+    /*public PaisResponseDTO getPaisResponseById(Long id) {
         log.info("PaisMonedaService-getPaisResponseById::Iniciando Servicio para obtener país por ID");
         PaisResponseDTO paisResponseDTO;
         try {
@@ -77,7 +90,7 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
             log.error("PaisMonedaService-getPaisResponseById::Error en el Service al buscar Pais", e);
             return paisResponseDTO = null;
         }
-    }
+    }*/
 
     public MonedaResponseDTO getMonedaResponseById(Long id) {
         log.info("PaisMonedaService-getMonedaResponseById::Iniciando Servicio para obtener moneda por ID");
@@ -103,10 +116,15 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
         dto.setId(entity.getId());
 
         //PaisDTO paisDTO = paisService.getAll(entity.getPais().getId());
-        PaisDTO paisDTO = getPaisById(entity.getPais().getId());
-        if (paisDTO != null) {
-            dto.setPais(paisDTO);
-        }
+        //PaisDTO paisDTO = getPaisById(entity.getPais().getId());
+        //if (paisDTO != null) {
+        //    dto.setPais(paisDTO);
+        //}
+        Optional<Pais> optional = paisRepository.findByIdAndNotDeleted(entity.getPais().getId());
+        PaisDTO paisDTO = null;
+        //CREO QUE EN VEZ DE ASIGNARLE NULL, DEBO CREAR UN NUEVO OBJETO DEL DTO: PaisDTO paisDTO = new PaisDTO()
+        paisDTO.setId(optional.get().getId());
+        paisDTO.setName(optional.get().getName());
 
         MonedaDTO monedaDTO = getMonedaById(entity.getMoneda().getId());
         if (monedaDTO != null) {
@@ -140,15 +158,34 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
         // Mapeo de cada campo de la entidad a su equivalente en el ResponseDTO.
         response.setId(entity.getId());
 
-        PaisResponseDTO paisResponseDTO = getPaisResponseById(entity.getPais().getId());
-        if (paisResponseDTO != null) {
+        //PaisResponseDTO paisResponseDTO = getPaisResponseById(entity.getPais().getId());
+        //if (paisResponseDTO != null) {
+        //    response.setPais(paisResponseDTO);
+        //}
+        //PaisResponseDTO paisResponseDTO = null;
+        PaisResponseDTO paisResponseDTO = new PaisResponseDTO();
+        log.info("PaisMonedaService-mapToResponseDTO::IdPais {}",entity.getPais().getId());
+        Optional<Pais> optionalEntityPais = paisRepository.findByIdAndNotDeleted(entity.getPais().getId());
+        log.info("PaisMonedaService-mapToResponseDTO::optionalEntityPais {}", optionalEntityPais.get().getId());
+        if (optionalEntityPais.isPresent()) {
+            paisResponseDTO.setId(optionalEntityPais.get().getId());
             response.setPais(paisResponseDTO);
         }
 
-        MonedaResponseDTO monedaResponseDTO = getMonedaResponseById(entity.getMoneda().getId());
-        if (monedaResponseDTO != null) {
+        //ACA ESTA EL PROBLEMA
+        //MonedaResponseDTO monedaResponseDTO = getMonedaResponseById(entity.getMoneda().getId());
+        //if (monedaResponseDTO != null) {
+        //    response.setMoneda(monedaResponseDTO);
+        //}
+        //MonedaResponseDTO monedaResponseDTO = null;
+        MonedaResponseDTO monedaResponseDTO = new MonedaResponseDTO();
+        Optional<Moneda> optionalEntityMoneda = monedaRepository.findByIdAndNotDeleted(entity.getMoneda().getId());
+        if (optionalEntityMoneda.isPresent()) {
+            monedaResponseDTO.setId(optionalEntityMoneda.get().getId());
+            monedaResponseDTO.setName(optionalEntityMoneda.get().getName());
             response.setMoneda(monedaResponseDTO);
         }
+
 
         response.setEsOficial(entity.getEsOficial());
         response.setEsPrimaria(entity.getEsPrimaria());
@@ -162,6 +199,8 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
         return response;
     }
 
+
+
     // Mapea un DTO a una entidad PaisMoneda.
     @Override
     public PaisMoneda mapToEntity(PaisMonedaDTO dto) {
@@ -172,10 +211,16 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
         // Mapeo de cada campo del DTO a su equivalente en la entidad.
         entity.setId(dto.getId());
 
-        PaisDTO paisDTO = getPaisById(dto.getPais().getId());
-        if (paisDTO != null) {
-            entity.setPais(paisService.mapToEntity(paisDTO) );
+        //PaisDTO paisDTO = getPaisById(dto.getPais().getId());
+        //if (paisDTO != null) {
+        //    entity.setPais(paisService.mapToEntity(paisDTO) );
+        //}
+        PaisDTO paisDTO = null;
+        Optional<Pais> optionalEntityPais = paisRepository.findByIdAndNotDeleted(dto.getPais().getId());
+        if (optionalEntityPais != null) {
+            entity.setPais(optionalEntityPais.get());
         }
+
 
         MonedaDTO monedaDTO = getMonedaById(dto.getMoneda().getId());
         if (monedaDTO != null) {
@@ -227,7 +272,7 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
     }
 
     // Busca un PaísMoneda activo por ID.
-    @Transactional(readOnly = true)
+    /*@Transactional(readOnly = true)
     @Override
     public PaisMonedaResponseDTO get(Long id) throws Exception {
         try {
@@ -263,7 +308,7 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
             log.error("PaisMonedaService-get-Exception::Error inesperado", e);
             throw new InternalServerErrorException("Ha ocurrido un error inesperado. Por favor, contacta al administrador del sistema.");
         }
-    }
+    }*/
 
     // Busca un PaísMoneda activo por ID y retorna todas sus propiedades.
     @Override
@@ -299,11 +344,12 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
     public PaisMonedaResponseDTO getByPaisIdAndEsPrimaria(Long paisId, Boolean esPrimaria) throws Exception {
         try {
             //intentar
-            log.info("PaisMonedaService-getByPaisIdAndEsPrimaria::Iniciando Servicio para obtener PaísMoneda buscado por IdPaisAndEsPrimaria {}, y EsPrimaria {}", paisId, esPrimaria);
+            log.info("PaisMonedaService-getByPaisIdAndEsPrimaria::Iniciando Servicio para obtener PaísMoneda buscado por IdPais {}, y EsPrimaria {}", paisId, esPrimaria);
 
             if (paisId == null) {
                 throw new MissingParameterException("El parámetro 'paisId' es requerido.");
             }
+
 
             Optional<PaisMoneda> optional = repository.findByPais_IdAndEsPrimaria(paisId, esPrimaria);
             if (optional.isEmpty()) {
@@ -331,8 +377,9 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
             throw new InternalServerErrorException("Ha ocurrido un error inesperado. Por favor, contacta al administrador del sistema.");
         }
     }
+    /**/
 
-    @Override
+    /*@Override
     public PaisMonedaResponseDTO create(PaisMonedaCreateDTO request) throws Exception {
         try {
             //intentar
@@ -386,10 +433,10 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
             log.error("PaisMonedaService-create-Exception::Error en el Service al intentar persistir el País-Moneda", e);
             throw new Exception("Error al intentar guardar en la base de datos el nuevo registro de País-Moneda. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
         }
-    }
+    }*/
 
     // Actualiza un PaísMoneda existente.
-    @Override
+    /*@Override
     public PaisMonedaResponseDTO update(Long id, PaisMonedaUpdateDTO dto) throws Exception {
         try {
             //intentar
@@ -450,29 +497,177 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
             log.error("PaisMonedaService-update-Exception::Error inesperado en el Service", e);
             throw new Exception("Ha ocurrido un error inesperado en la actualización. Por favor, contacta al administrador del sistema.");
         }
+    }*/
+
+
+
+    @Override
+    public PaisMonedaResponseDTO registrarPrimerPaisMoneda(Long paisId, Long monedaId) throws Exception {
+        try {
+            //intentar
+            log.info("PaisMonedaService-registrarPrimerPaisMoneda::Iniciando Servicio para guardar primera relación de Pais Moneda");
+
+            PaisDTO paisDTO = new PaisDTO();
+            Optional<Pais> optionalPais = paisRepository.findByIdAndNotDeleted(paisId);
+            paisDTO.setId(optionalPais.get().getId());
+
+            MonedaDTO monedaDTO = new MonedaDTO();
+            Optional<Moneda> optionalMoneda = monedaRepository.findByIdAndNotDeleted(monedaId);
+            monedaDTO.setId(optionalMoneda.get().getId());
+
+            PaisMonedaDTO paisMonedaDTO = new PaisMonedaDTO();
+            paisMonedaDTO.setPais(paisDTO);
+            paisMonedaDTO.setMoneda(monedaDTO);
+            paisMonedaDTO.setValidoDesde(LocalDate.now());
+            paisMonedaDTO.setEsOficial(true);
+            paisMonedaDTO.setEsPrimaria(true);
+
+            PaisMoneda entity = mapToEntity(paisMonedaDTO);
+            PaisMoneda savedEntity = repository.save(entity);
+
+            // Registrar auditoría, registrar el evento de creación.
+            Auditoria auditoria = new Auditoria();
+            auditoria.setAction(Action.CREATE);
+            auditoria.setEntity("PaisMoneda");
+            auditoria.setEntityId(savedEntity.getId());
+            auditoria.setPerformedBy("system");
+            auditoria.setTimestamp(LocalDateTime.now());
+            auditoria.setDetails("Creación de un nuevo país-moneda");
+            auditoriaRepository.save(auditoria);
+
+            PaisMonedaResponseDTO responseDTO = new PaisMonedaResponseDTO();
+            responseDTO.setId(savedEntity.getId());
+            // Reutilizar el método create para persistir la primera relacion Pais-Moneda
+            log.info("PaisMonedaService-registrarPrimerPaisMoneda::Relación Pais-Moneda registrada correctamente");
+
+            return responseDTO;
+        } catch (Exception e) {
+            //capturar, la raridad
+            log.error("PaisMonedaService-registrarPrimerPaisMoneda-Exception::Error en el Service al intentar persistir el País-Moneda", e);
+            throw new Exception("Error al intentar guardar en la base de datos el nuevo registro de País-Moneda. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
+        }
     }
 
-    //@Override
-    //public PaisMonedaResponseDTO registrarPrimerPaisMoneda(Long paisId, Long monedaId) throws Exception {
-        //try {
+    @Override
+    public void marcarRelacionesInactivasPorPais(Long paisId) throws Exception  {
+        try {
             //intentar
-            //log.info("PaisMonedaService-registrarPrimerPaisMoneda::Iniciando Servicio para guardar primera relación de Pais Moneda");
-            //PaisDTO paisDTO = paisService.getAll(paisId);
-            //MonedaDTO monedaDTO = monedaService.getAll(monedaId);
-            //PaisMonedaCreateDTO paisMonedaCreateDTO = new PaisMonedaCreateDTO();
-            //paisMonedaCreateDTO.setPais(paisDTO);
-            //paisMonedaCreateDTO.setMoneda(monedaDTO);
-            //paisMonedaCreateDTO.setValidoDesde(LocalDate.now());
+            log.info("PaisMonedaService-marcarRelacionesInactivasPorPais::Marcando relaciones inactivas para país ID: {}", paisId);
 
-            // Reutilizar el método create para persistir la primera relacion Pais-Moneda
-            //log.info("PaisMonedaService-registrarPrimerPaisMoneda::Relación Pais-Moneda registrada correctamente");
-            //return create(paisMonedaCreateDTO);
-        //} catch (Exception e) {
+            List<PaisMoneda> relaciones = repository.findByPais_Id(paisId);
+            if (relaciones.isEmpty()) {
+                log.info("PaisMonedaService-marcarRelacionesInactivasPorPais:: No hay relaciones para eliminar");
+                return;
+            }
+
+            for (PaisMoneda pm : relaciones) {
+                pm.setEsPrimaria(false);
+                pm.setEsOficial(false);
+                pm.setEstado(Estado.INACTIVO);
+                pm.setDeleted(true);
+                pm.setDeletedBy("system");
+                pm.setDeletedAt(LocalDateTime.now());
+                repository.save(pm);
+
+                auditoriaService.registrarAuditoria(
+                    Action.DELETE,
+                    "PaisMoneda",
+                    pm.getId(),
+                    "system",
+                    "Eliminación lógica de relación País-Moneda (País ID: " + paisId + ")"
+                );
+            }
+
+            log.info("PaisMonedaService-marcarRelacionesInactivasPorPais::Acción completada sin errores");
+        } catch (Exception e) {
             //capturar, la raridad
-            //log.error("PaisMonedaService-registrarPrimerPaisMoneda-Exception::Error en el Service al intentar persistir el País-Moneda", e);
-            //throw new Exception("Error al intentar guardar en la base de datos el nuevo registro de País-Moneda. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
-        //}
-    //}
+            log.error("PaisMonedaService-marcarRelacionesInactivasPorPais-Exception::Error en el Service al intentar eliminar el País-Moneda", e);
+            throw new Exception("Error al intentar eliminar en la base de datos el registro de País-Moneda. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
+        }
+    }
+
+    @Override
+    public void actualizarMonedaPrincipal(Long paisId, Long nuevaMonedaId, String user) throws Exception {
+
+
+        try {
+            //intentar
+            log.info("PaisMonedaService-actualizarMonedaPrincipal::Actualizando relaciones para país ID: {}", paisId);
+
+            // 1️⃣ Verificar moneda
+            Optional<Moneda> optionalMoneda = monedaRepository.findByIdAndNotDeleted(nuevaMonedaId);
+            if (optionalMoneda.isEmpty()) {
+                throw new NotFoundException("No se encontró Moneda con el ID " + nuevaMonedaId + ". Por favor, verifica el ID y vuelve a intentarlo.");
+            }
+
+            // 2️⃣ Desactivar relaciones actuales
+            List<PaisMoneda> actuales = repository.findAllByPais_IdAndNotDeleted(paisId);
+            for (PaisMoneda pm : actuales) {
+                pm.setEstado(Estado.INACTIVO);
+                pm.setEsPrimaria(false);
+                pm.setDeleted(true);
+                pm.setDeletedBy(user);
+                pm.setDeletedAt(LocalDateTime.now());
+                repository.save(pm);
+
+                auditoriaService.registrarAuditoria(
+                        Action.UPDATE,
+                        "PaisMoneda",
+                        pm.getId(),
+                        user,
+                        "Desactivación de relación País-Moneda por cambio de moneda principal"
+                );
+            }
+
+            // 3️⃣ Reactivar si ya existía
+            Optional<PaisMoneda> existente = repository.findByPais_IdAndMoneda_Id(paisId, nuevaMonedaId);
+            PaisMoneda nuevaRelacion;
+            if (existente.isPresent()) {
+                nuevaRelacion = existente.get();
+                nuevaRelacion.setEstado(Estado.ACTIVO);
+                nuevaRelacion.setEsPrimaria(true);
+                nuevaRelacion.setDeleted(false);
+                nuevaRelacion.setDeletedBy(null);
+                nuevaRelacion.setDeletedAt(null);
+                nuevaRelacion.setUpdatedBy(user);
+                nuevaRelacion.setUpdatedAt(LocalDateTime.now());
+                repository.save(nuevaRelacion);
+            } else {
+                // 4️⃣ Crear nueva relación
+                Pais pais = paisRepository.findById(paisId)
+                        .orElseThrow(() -> new NotFoundException("No se encontró el país con ID " + paisId));
+                nuevaRelacion = new PaisMoneda();
+                nuevaRelacion.setPais(pais);
+                nuevaRelacion.setMoneda(optionalMoneda.get());
+                nuevaRelacion.setEstado(Estado.ACTIVO);
+                nuevaRelacion.setEsPrimaria(true);
+                nuevaRelacion.setEsOficial(true);
+                nuevaRelacion.setValidoDesde(LocalDate.now());
+                nuevaRelacion.setCreatedBy(user);
+                nuevaRelacion.setCreatedAt(LocalDateTime.now());
+                repository.save(nuevaRelacion);
+            }
+
+            // 5️⃣ Registrar auditoría
+            auditoriaService.registrarAuditoria(
+                    Action.UPDATE,
+                    "PaisMoneda",
+                    nuevaRelacion.getId(),
+                    user,
+                    "Asignación de nueva moneda principal del país"
+            );
+
+        } catch (NotFoundException e) {
+                //capturar, la raridad
+                log.error("PaisMonedaService-actualizarMonedaPrincipal-NotFoundException::Error en el Service, País con el ID: {}, No encontrado ", paisId);
+                throw e; // Dejamos que la excepción NotFoundException se propague
+        } catch (Exception e) {
+            //capturar, la raridad
+            log.error("PaisMonedaService-actualizarMonedaPrincipal-Exception::Error en el Service al intentar actualizar el País-Moneda", e);
+            throw new Exception("Error al intentar actualizar en la base de datos el registro de País-Moneda. Por favor, inténtelo de nuevo más tarde o consulte con el Administrador del Sistema.");
+        }
+    }
+
 
 
     // Busca un PaísMoneda activo por IdPais y IdMoneda.
@@ -566,4 +761,5 @@ public class PaisMonedaServiceImpl implements PaisMonedaService {
 
     }
     */
+
 }
